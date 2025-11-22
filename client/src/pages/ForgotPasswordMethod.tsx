@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
@@ -172,7 +171,7 @@ export default function ForgotPasswordMethod() {
             {isSms ? (
               <div>
                 <Label htmlFor="phone">Teléfono</Label>
-                <Input
+                <input
                   id="phone"
                   type="tel"
                   value={phone}
@@ -181,19 +180,21 @@ export default function ForgotPasswordMethod() {
                   disabled={isLoading}
                   data-testid="input-phone"
                   required
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 />
               </div>
             ) : (
               <div>
                 <Label htmlFor="recoveryEmail">Email para recibir el código</Label>
-                <Input
+                <input
                   id="recoveryEmail"
                   type="text"
                   value={recoveryEmail}
                   onChange={(e) => setRecoveryEmail(e.target.value)}
                   placeholder="tu.email@ejemplo.com"
-                  autoFocus
                   data-testid="input-recovery-email"
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  autoFocus
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Ingresa tu email de recuperación registrado
