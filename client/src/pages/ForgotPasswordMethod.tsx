@@ -12,6 +12,7 @@ export default function ForgotPasswordMethod() {
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [recoveryCode, setRecoveryCode] = useState("");
   const { toast } = useToast();
 
   const isSms = location.includes("/sms");
@@ -73,9 +74,9 @@ export default function ForgotPasswordMethod() {
         description: isSms ? "Código enviado por SMS" : "Código enviado por email",
       });
 
-      // If code is returned (development mode), show it
+      // Store code if returned (development mode)
       if (data.code) {
-        console.log("Tu código de recuperación es:", data.code);
+        setRecoveryCode(data.code);
       }
 
       setSubmitted(true);
@@ -103,19 +104,40 @@ export default function ForgotPasswordMethod() {
             <p className="text-sm text-muted-foreground">
               Hemos enviado un código de 6 dígitos. Será válido por 15 minutos.
             </p>
+
+            {recoveryCode && (
+              <div className="bg-muted p-4 rounded-md border border-border">
+                <p className="text-sm text-muted-foreground mb-2">Tu código es:</p>
+                <p className="text-2xl font-bold text-center font-mono" data-testid="text-recovery-code">
+                  {recoveryCode}
+                </p>
+              </div>
+            )}
+
             <a href={`/admin-secret-2024/reset-password?email=${encodeURIComponent(email)}`}>
               <Button className="w-full" data-testid="button-go-to-reset">
-                Ingresar Código
+                Continuar a Resetear Contraseña
               </Button>
             </a>
+
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => setSubmitted(false)}
-              data-testid="button-back"
+              onClick={() => {
+                setSubmitted(false);
+                setRecoveryCode("");
+                setPhone("");
+              }}
+              data-testid="button-change-method"
             >
-              Atrás
+              Cambiar forma de recuperación
             </Button>
+
+            <a href="/admin-secret-2024" className="block">
+              <Button variant="ghost" className="w-full" type="button" data-testid="button-back-to-login">
+                Volver al Login
+              </Button>
+            </a>
           </CardContent>
         </Card>
       </div>
