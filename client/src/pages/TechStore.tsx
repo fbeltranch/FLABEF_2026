@@ -296,8 +296,6 @@ function Footer({ section }: { section: "tech" | "it_services" | "food" }) {
             <h4 className="font-semibold mb-4">Enlaces Rápidos</h4>
             <div className="space-y-2 text-sm">
               <a href="/" className="text-muted-foreground hover:text-foreground transition">Inicio</a>
-              <br />
-              <a href="/admin" className="text-muted-foreground hover:text-foreground transition">Admin</a>
             </div>
           </div>
 

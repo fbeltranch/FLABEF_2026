@@ -21,7 +21,6 @@ export function Navbar({ cartItemCount = 0, onCartClick }: NavbarProps) {
     { path: "/", label: "Tech Store", icon: Laptop },
     { path: "/it-services", label: "Servicios IT", icon: Wrench },
     { path: "/food", label: "Comida", icon: UtensilsCrossed },
-    ...(isAuthenticated ? [{ path: "/admin", label: "Admin", icon: Settings }] : []),
   ];
 
   const NavLinks = ({ mobile = false }) => (
@@ -92,9 +91,9 @@ export function Navbar({ cartItemCount = 0, onCartClick }: NavbarProps) {
               </Button>
             )}
 
-            {/* User Menu */}
-            {isAuthenticated ? (
-              <div className="flex items-center gap-2">
+            {/* User Menu - Hidden */}
+            {isAuthenticated && (
+              <div className="hidden">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user?.profileImageUrl} />
                   <AvatarFallback>{user?.email?.[0]?.toUpperCase()}</AvatarFallback>
@@ -112,23 +111,6 @@ export function Navbar({ cartItemCount = 0, onCartClick }: NavbarProps) {
                   Salir
                 </Button>
               </div>
-            ) : (
-              <Button
-                size="sm"
-                onClick={() => {
-                  const email = prompt("Email:");
-                  if (!email) return;
-                  const password = prompt("Contraseña:");
-                  if (!password) return;
-                  fetch("/api/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
-                  }).then(() => window.location.reload());
-                }}
-              >
-                Iniciar Sesión
-              </Button>
             )}
 
             {/* Mobile Menu */}
