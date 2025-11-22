@@ -44,6 +44,13 @@ export default function TechStore() {
     queryKey: ["/api/cart"],
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["/api/settings"],
+  });
+
+  const techHero = settings?.find((s: any) => s.key === "tech_hero")?.value || {};
+  const heroImage = techHero.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1200&h=600&fit=crop";
+
   const addToCartMutation = useMutation({
     mutationFn: async (product: Product) => {
       const existingItem = cartItems?.find(item => item.productId === product.id);
@@ -94,13 +101,13 @@ export default function TechStore() {
         
         <div className="relative z-10 max-w-4xl mx-auto px-6">
           <Badge className="mb-6 bg-primary/20 text-primary-foreground border-primary/30" data-testid="badge-hero">
-            FLABEF Store
+            {techHero.badge || "FLABEF Store"}
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-            Todo lo que necesitas en un solo lugar
+            {techHero.title || "Todo lo que necesitas en un solo lugar"}
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-200">
-            Ropa, accesorios, mochilas y tecnología de calidad premium
+            {techHero.subtitle || "Ropa, accesorios, mochilas y tecnología de calidad premium"}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -109,7 +116,7 @@ export default function TechStore() {
               onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}
               data-testid="button-hero-catalog"
             >
-              Ver Catálogo
+              {techHero.cta1Text || "Ver Catálogo"}
             </Button>
             <Button 
               size="lg" 
@@ -117,7 +124,7 @@ export default function TechStore() {
               className="text-lg px-8 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
               data-testid="button-hero-whatsapp"
             >
-              Consultar por WhatsApp
+              {techHero.cta2Text || "Consultar por WhatsApp"}
             </Button>
           </div>
         </div>

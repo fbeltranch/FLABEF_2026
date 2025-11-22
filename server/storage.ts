@@ -14,6 +14,8 @@ import {
   type Footer,
   type InsertFooter,
   type UpdateFooter,
+  type SiteSetting,
+  type InsertSiteSetting,
   products,
   itServices,
   foodItems,
@@ -21,6 +23,7 @@ import {
   contactRequests,
   users,
   footers,
+  siteSettings,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -67,6 +70,11 @@ export interface IStorage {
   getFooter(section: string): Promise<Footer | undefined>;
   updateFooter(section: string, footer: InsertFooter): Promise<Footer>;
   getAllFooters(): Promise<Footer[]>;
+
+  // Site Settings
+  getSiteSetting(key: string): Promise<SiteSetting | undefined>;
+  updateSiteSetting(key: string, value: Record<string, any>): Promise<SiteSetting>;
+  getAllSiteSettings(): Promise<SiteSetting[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -247,6 +255,28 @@ export class DatabaseStorage implements IStorage {
 
   async getAllFooters(): Promise<Footer[]> {
     return db.select().from(footers);
+  }
+
+  // ===== Site Settings =====
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    const result = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return result[0];
+  }
+
+  async updateSiteSetting(key: string, value: Record<string, any>): Promise<SiteSetting> {
+    const result = await db
+      .insert(siteSettings)
+      .values({ key, value })
+      .onConflictDoUpdate({
+        target: siteSettings.key,
+        set: { value, updatedAt: new Date() },
+      })
+      .returning();
+    return result[0];
+  }
+
+  async getAllSiteSettings(): Promise<SiteSetting[]> {
+    return db.select().from(siteSettings);
   }
 }
 

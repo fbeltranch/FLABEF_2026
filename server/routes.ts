@@ -12,6 +12,7 @@ import {
   insertCartItemSchema,
   insertContactRequestSchema,
   insertFooterSchema,
+  insertSiteSettingSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -322,6 +323,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Footer update error:", error);
       res.status(400).json({ error: error.message || "Invalid footer data" });
+    }
+  });
+
+  // ============= SITE SETTINGS =============
+  app.get("/api/settings", async (_req, res) => {
+    try {
+      const settings = await storage.getAllSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch settings" });
+    }
+  });
+
+  app.get("/api/settings/:key", async (req, res) => {
+    try {
+      const setting = await storage.getSiteSetting(req.params.key);
+      if (!setting) {
+        return res.status(404).json({ error: "Setting not found" });
+      }
+      res.json(setting);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch setting" });
+    }
+  });
+
+  app.put("/api/settings/:key", isAuthenticated, async (req, res) => {
+    try {
+      const { value } = req.body;
+      if (!value) {
+        return res.status(400).json({ error: "Value is required" });
+      }
+      const setting = await storage.updateSiteSetting(req.params.key, value);
+      res.json(setting);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid settings data" });
     }
   });
 

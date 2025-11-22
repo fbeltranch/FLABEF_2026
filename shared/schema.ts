@@ -163,6 +163,22 @@ export type InsertFooter = z.infer<typeof insertFooterSchema>;
 export type UpdateFooter = z.infer<typeof updateFooterSchema>;
 export type Footer = typeof footers.$inferSelect;
 
+// ============= SITE SETTINGS (Global branding & configuration) =============
+export const siteSettings = pgTable("site_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: text("key").notNull().unique(), // "branding", "tech_hero", "it_hero", "food_hero"
+  value: jsonb("value").notNull(), // Stores all configuration as JSON
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSiteSettingSchema = z.object({
+  key: z.string(),
+  value: z.record(z.any()),
+});
+
+export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
+export type SiteSetting = typeof siteSettings.$inferSelect;
+
 // ============= PRODUCT_OWNER (Optional - for future owner tracking) =============
 // This tracks which admin user created or owns a product
 export const productOwners = pgTable("product_owners", {

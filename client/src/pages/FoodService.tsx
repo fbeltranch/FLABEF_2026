@@ -24,6 +24,13 @@ export default function FoodService() {
     queryKey: ["/api/food-items"],
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["/api/settings"],
+  });
+
+  const foodHero = settings?.find((s: any) => s.key === "food_hero")?.value || {};
+  const heroImageUrl = foodHero.image || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1200&h=600&fit=crop";
+
   const filteredItems = menuItems?.filter((item) => {
     return selectedCategory === "all" || item.category === selectedCategory;
   });
@@ -34,7 +41,7 @@ export default function FoodService() {
       <section 
         className="relative h-[70vh] flex items-center justify-center overflow-hidden"
         style={{
-          backgroundImage: `url(${heroImage})`,
+          backgroundImage: `url(${heroImageUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -43,18 +50,18 @@ export default function FoodService() {
         
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <Badge className="mb-6 bg-orange-500/20 text-orange-100 border-orange-400/30">
-            FLABEF Food Service
+            {foodHero.badge || "FLABEF Food Service"}
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-            Sabor Casero para tu Día
+            {foodHero.title || "Sabor Casero para tu Día"}
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-200">
-            Platos peruanos tradicionales preparados con cariño y frescura
+            {foodHero.subtitle || "Platos peruanos tradicionales preparados con cariño y frescura"}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <WhatsAppButton 
               variant="inline"
-              text="Hacer Pedido Ahora"
+              text={foodHero.cta1Text || "Hacer Pedido Ahora"}
               message="Hola! Me gustaría hacer un pedido de comida"
             />
             <Button 
@@ -64,7 +71,7 @@ export default function FoodService() {
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
               data-testid="button-hero-menu"
             >
-              Ver Menú
+              {foodHero.cta2Text || "Ver Menú"}
             </Button>
           </div>
         </div>

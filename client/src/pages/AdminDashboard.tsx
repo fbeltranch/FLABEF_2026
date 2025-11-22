@@ -928,6 +928,323 @@ function FootersTab() {
   );
 }
 
+// ===== BRANDING & SETTINGS =====
+function BrandingTab() {
+  const [branding, setBranding] = useState({ siteName: "", logo: "", description: "" });
+  const [techHero, setTechHero] = useState({ badge: "", title: "", subtitle: "", cta1Text: "", cta2Text: "", image: "" });
+  const [itHero, setItHero] = useState({ badge: "", title: "", subtitle: "", cta1Text: "", cta2Text: "", image: "" });
+  const [foodHero, setFoodHero] = useState({ badge: "", title: "", subtitle: "", cta1Text: "", cta2Text: "", image: "" });
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const { data: settings } = useQuery({
+    queryKey: ["/api/settings"],
+  });
+
+  const updateSettingMutation = useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: any }) => {
+      return apiRequest("PUT", `/api/settings/${key}`, { value });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+      toast({ title: "Configuración actualizada exitosamente" });
+      setEditingSection(null);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "No se pudo actualizar la configuración", variant: "destructive" });
+    },
+  });
+
+  const handleSaveBranding = () => {
+    updateSettingMutation.mutate({ key: "branding", value: branding });
+  };
+
+  const handleSaveTechHero = () => {
+    updateSettingMutation.mutate({ key: "tech_hero", value: techHero });
+  };
+
+  const handleSaveITHero = () => {
+    updateSettingMutation.mutate({ key: "it_hero", value: itHero });
+  };
+
+  const handleSaveFoodHero = () => {
+    updateSettingMutation.mutate({ key: "food_hero", value: foodHero });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Branding */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Identidad de Marca</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {editingSection === "branding" ? (
+            <div className="space-y-4">
+              <div>
+                <Label>Nombre del Sitio</Label>
+                <Input
+                  value={branding.siteName}
+                  onChange={(e) => setBranding({ ...branding, siteName: e.target.value })}
+                  placeholder="FLABEF"
+                />
+              </div>
+              <div>
+                <Label>URL del Logo</Label>
+                <Input
+                  value={branding.logo}
+                  onChange={(e) => setBranding({ ...branding, logo: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
+              <div>
+                <Label>Descripción del Sitio</Label>
+                <Textarea
+                  value={branding.description}
+                  onChange={(e) => setBranding({ ...branding, description: e.target.value })}
+                  placeholder="Descripción breve del sitio..."
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p><strong>Nombre:</strong> {settings?.find((s: any) => s.key === "branding")?.value?.siteName || "No configurado"}</p>
+              <p><strong>Logo:</strong> {settings?.find((s: any) => s.key === "branding")?.value?.logo ? "✓ Configurado" : "No configurado"}</p>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="gap-2">
+          {editingSection === "branding" ? (
+            <>
+              <Button className="flex-1" onClick={handleSaveBranding} disabled={updateSettingMutation.isPending}>
+                Guardar
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => setEditingSection(null)}>
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <Button className="flex-1" onClick={() => {
+              const current = settings?.find((s: any) => s.key === "branding")?.value || {};
+              setBranding(current);
+              setEditingSection("branding");
+            }}>
+              Editar
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+
+      {/* Tech Hero */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Portada - Tech Store</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {editingSection === "tech_hero" ? (
+            <div className="space-y-4">
+              <Input
+                placeholder="Badge (ej: FLABEF Store)"
+                value={techHero.badge}
+                onChange={(e) => setTechHero({ ...techHero, badge: e.target.value })}
+              />
+              <Input
+                placeholder="Título principal"
+                value={techHero.title}
+                onChange={(e) => setTechHero({ ...techHero, title: e.target.value })}
+              />
+              <Input
+                placeholder="Subtítulo"
+                value={techHero.subtitle}
+                onChange={(e) => setTechHero({ ...techHero, subtitle: e.target.value })}
+              />
+              <Input
+                placeholder="Texto botón 1"
+                value={techHero.cta1Text}
+                onChange={(e) => setTechHero({ ...techHero, cta1Text: e.target.value })}
+              />
+              <Input
+                placeholder="Texto botón 2"
+                value={techHero.cta2Text}
+                onChange={(e) => setTechHero({ ...techHero, cta2Text: e.target.value })}
+              />
+              <Input
+                placeholder="URL de imagen"
+                value={techHero.image}
+                onChange={(e) => setTechHero({ ...techHero, image: e.target.value })}
+              />
+            </div>
+          ) : (
+            <div className="space-y-2 text-sm">
+              <p><strong>Badge:</strong> {settings?.find((s: any) => s.key === "tech_hero")?.value?.badge || "-"}</p>
+              <p><strong>Título:</strong> {settings?.find((s: any) => s.key === "tech_hero")?.value?.title || "-"}</p>
+              <p><strong>Subtítulo:</strong> {settings?.find((s: any) => s.key === "tech_hero")?.value?.subtitle || "-"}</p>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="gap-2">
+          {editingSection === "tech_hero" ? (
+            <>
+              <Button className="flex-1" onClick={handleSaveTechHero} disabled={updateSettingMutation.isPending}>
+                Guardar
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => setEditingSection(null)}>
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <Button className="flex-1" onClick={() => {
+              const current = settings?.find((s: any) => s.key === "tech_hero")?.value || {};
+              setTechHero(current);
+              setEditingSection("tech_hero");
+            }}>
+              Editar
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+
+      {/* IT Hero */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Portada - IT Services</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {editingSection === "it_hero" ? (
+            <div className="space-y-4">
+              <Input
+                placeholder="Badge"
+                value={itHero.badge}
+                onChange={(e) => setItHero({ ...itHero, badge: e.target.value })}
+              />
+              <Input
+                placeholder="Título principal"
+                value={itHero.title}
+                onChange={(e) => setItHero({ ...itHero, title: e.target.value })}
+              />
+              <Input
+                placeholder="Subtítulo"
+                value={itHero.subtitle}
+                onChange={(e) => setItHero({ ...itHero, subtitle: e.target.value })}
+              />
+              <Input
+                placeholder="Texto botón 1"
+                value={itHero.cta1Text}
+                onChange={(e) => setItHero({ ...itHero, cta1Text: e.target.value })}
+              />
+              <Input
+                placeholder="Texto botón 2"
+                value={itHero.cta2Text}
+                onChange={(e) => setItHero({ ...itHero, cta2Text: e.target.value })}
+              />
+              <Input
+                placeholder="URL de imagen"
+                value={itHero.image}
+                onChange={(e) => setItHero({ ...itHero, image: e.target.value })}
+              />
+            </div>
+          ) : (
+            <div className="space-y-2 text-sm">
+              <p><strong>Badge:</strong> {settings?.find((s: any) => s.key === "it_hero")?.value?.badge || "-"}</p>
+              <p><strong>Título:</strong> {settings?.find((s: any) => s.key === "it_hero")?.value?.title || "-"}</p>
+              <p><strong>Subtítulo:</strong> {settings?.find((s: any) => s.key === "it_hero")?.value?.subtitle || "-"}</p>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="gap-2">
+          {editingSection === "it_hero" ? (
+            <>
+              <Button className="flex-1" onClick={handleSaveITHero} disabled={updateSettingMutation.isPending}>
+                Guardar
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => setEditingSection(null)}>
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <Button className="flex-1" onClick={() => {
+              const current = settings?.find((s: any) => s.key === "it_hero")?.value || {};
+              setItHero(current);
+              setEditingSection("it_hero");
+            }}>
+              Editar
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+
+      {/* Food Hero */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Portada - Food Service</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {editingSection === "food_hero" ? (
+            <div className="space-y-4">
+              <Input
+                placeholder="Badge"
+                value={foodHero.badge}
+                onChange={(e) => setFoodHero({ ...foodHero, badge: e.target.value })}
+              />
+              <Input
+                placeholder="Título principal"
+                value={foodHero.title}
+                onChange={(e) => setFoodHero({ ...foodHero, title: e.target.value })}
+              />
+              <Input
+                placeholder="Subtítulo"
+                value={foodHero.subtitle}
+                onChange={(e) => setFoodHero({ ...foodHero, subtitle: e.target.value })}
+              />
+              <Input
+                placeholder="Texto botón 1"
+                value={foodHero.cta1Text}
+                onChange={(e) => setFoodHero({ ...foodHero, cta1Text: e.target.value })}
+              />
+              <Input
+                placeholder="Texto botón 2"
+                value={foodHero.cta2Text}
+                onChange={(e) => setFoodHero({ ...foodHero, cta2Text: e.target.value })}
+              />
+              <Input
+                placeholder="URL de imagen"
+                value={foodHero.image}
+                onChange={(e) => setFoodHero({ ...foodHero, image: e.target.value })}
+              />
+            </div>
+          ) : (
+            <div className="space-y-2 text-sm">
+              <p><strong>Badge:</strong> {settings?.find((s: any) => s.key === "food_hero")?.value?.badge || "-"}</p>
+              <p><strong>Título:</strong> {settings?.find((s: any) => s.key === "food_hero")?.value?.title || "-"}</p>
+              <p><strong>Subtítulo:</strong> {settings?.find((s: any) => s.key === "food_hero")?.value?.subtitle || "-"}</p>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="gap-2">
+          {editingSection === "food_hero" ? (
+            <>
+              <Button className="flex-1" onClick={handleSaveFoodHero} disabled={updateSettingMutation.isPending}>
+                Guardar
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => setEditingSection(null)}>
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <Button className="flex-1" onClick={() => {
+              const current = settings?.find((s: any) => s.key === "food_hero")?.value || {};
+              setFoodHero(current);
+              setEditingSection("food_hero");
+            }}>
+              Editar
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
 // ===== MAIN ADMIN =====
 export default function AdminDashboard() {
   return (
@@ -935,11 +1252,12 @@ export default function AdminDashboard() {
       <h1 className="text-4xl font-bold mb-8">Panel de Administración FLABEF</h1>
       
       <Tabs defaultValue="products" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="products">Productos Tech</TabsTrigger>
           <TabsTrigger value="it-services">Servicios IT</TabsTrigger>
           <TabsTrigger value="food">Comidas</TabsTrigger>
           <TabsTrigger value="footers">Footers</TabsTrigger>
+          <TabsTrigger value="branding">Branding</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="mt-8">
@@ -956,6 +1274,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="footers" className="mt-8">
           <FootersTab />
+        </TabsContent>
+
+        <TabsContent value="branding" className="mt-8">
+          <BrandingTab />
         </TabsContent>
       </Tabs>
     </div>

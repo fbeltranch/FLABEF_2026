@@ -49,6 +49,13 @@ export default function ITServices() {
     queryKey: ["/api/it-services"],
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["/api/settings"],
+  });
+
+  const itHero = settings?.find((s: any) => s.key === "it_hero")?.value || {};
+  const heroImageUrl = itHero.image || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop";
+
   const contactMutation = useMutation({
     mutationFn: async (data: { name: string; phone: string; message: string }) => {
       return apiRequest("POST", "/api/contact", {
@@ -84,7 +91,7 @@ export default function ITServices() {
       <section 
         className="relative min-h-[60vh] flex items-center overflow-hidden"
         style={{
-          backgroundImage: `url(${heroImage})`,
+          backgroundImage: `url(${heroImageUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -94,18 +101,18 @@ export default function ITServices() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
           <div className="max-w-2xl">
             <Badge className="mb-6 bg-primary/20 text-primary-foreground border-primary/30">
-              FLABEF IT Services
+              {itHero.badge || "FLABEF IT Services"}
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-              Soporte Técnico Profesional 24/7
+              {itHero.title || "Soporte Técnico Profesional 24/7"}
             </h1>
             <p className="text-xl mb-8 text-gray-200">
-              Soluciones tecnológicas empresariales con garantía y respaldo profesional
+              {itHero.subtitle || "Soluciones tecnológicas empresariales con garantía y respaldo profesional"}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <WhatsAppButton 
                 variant="inline"
-                text="Contactar Ahora"
+                text={itHero.cta1Text || "Contactar Ahora"}
               />
               <Button 
                 size="lg" 
@@ -114,7 +121,7 @@ export default function ITServices() {
                 onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
                 data-testid="button-hero-services"
               >
-                Ver Servicios
+                {itHero.cta2Text || "Ver Servicios"}
               </Button>
             </div>
           </div>
