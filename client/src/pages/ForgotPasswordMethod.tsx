@@ -66,10 +66,17 @@ export default function ForgotPasswordMethod() {
         return;
       }
 
+      const data = await res.json();
+      
       toast({
         title: "Éxito",
         description: isSms ? "Código enviado por SMS" : "Código enviado por email",
       });
+
+      // If code is returned (development mode), show it
+      if (data.code) {
+        console.log("Tu código de recuperación es:", data.code);
+      }
 
       setSubmitted(true);
     } catch (error) {

@@ -434,6 +434,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
       await storage.createResetToken(admin.id, code, phone);
 
+      const isDev = process.env.NODE_ENV === "development";
+      let smsSent = false;
+
       // Try to send SMS via Twilio if configured
       try {
         const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -448,11 +451,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             from: twilioPhoneNumber,
             to: phone,
           });
-        } else {
-          console.log(`[PASSWORD RESET] Code for ${email}: ${code} (Twilio not configured)`);
+          smsSent = true;
         }
       } catch (smsError) {
         console.error("Failed to send SMS:", smsError);
+      }
+
+      console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
+
+      // In development, return code for testing
+      if (isDev) {
+        return res.json({ message: "Code sent to phone", code });
       }
 
       res.json({ message: "Code sent to phone" });
@@ -477,8 +486,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
       await storage.createResetToken(admin.id, code);
 
-      // Log code (in production, send via email service)
+      const isDev = process.env.NODE_ENV === "development";
+
+      // Log code
       console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
+
+      // In development, return code for testing
+      if (isDev) {
+        return res.json({ message: "Code sent to email", code });
+      }
 
       res.json({ message: "Code sent to email" });
     } catch (error: any) {
