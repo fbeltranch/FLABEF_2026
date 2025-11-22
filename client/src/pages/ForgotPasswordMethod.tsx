@@ -189,16 +189,16 @@ export default function ForgotPasswordMethod() {
                 <Label htmlFor="recoveryEmail">Email para recibir el código</Label>
                 <Input
                   id="recoveryEmail"
-                  type="email"
+                  type="text"
                   value={recoveryEmail}
                   onChange={(e) => setRecoveryEmail(e.target.value)}
-                  placeholder="recuperacion@example.com"
+                  placeholder="tu.email@ejemplo.com"
                   disabled={isLoading}
+                  autoFocus
                   data-testid="input-recovery-email"
-                  required
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Ingresa el email donde quieres recibir el código (puede ser diferente al registrado)
+                  Ingresa tu email de recuperación registrado
                 </p>
               </div>
             )}
