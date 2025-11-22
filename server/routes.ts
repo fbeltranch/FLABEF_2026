@@ -309,11 +309,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/footers/:section", isAuthenticated, async (req, res) => {
     try {
+      console.log("Updating footer for section:", req.params.section);
+      console.log("Request body:", req.body);
+      
       const validated = insertFooterSchema.parse(req.body);
+      console.log("Validated data:", validated);
+      
       const footer = await storage.updateFooter(req.params.section, validated);
+      console.log("Updated footer:", footer);
+      
       res.json(footer);
-    } catch (error) {
-      res.status(400).json({ error: "Invalid footer data" });
+    } catch (error: any) {
+      console.error("Footer update error:", error);
+      res.status(400).json({ error: error.message || "Invalid footer data" });
     }
   });
 

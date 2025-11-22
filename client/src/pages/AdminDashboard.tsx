@@ -758,7 +758,8 @@ function FootersTab() {
     },
     onError: (error: any) => {
       console.error("Error updating footer:", error);
-      toast({ title: "Error", description: "No se pudo actualizar el footer", variant: "destructive" });
+      const errorMsg = error?.response?.data?.error || error?.message || "No se pudo actualizar el footer";
+      toast({ title: "Error", description: errorMsg, variant: "destructive" });
     },
   });
 

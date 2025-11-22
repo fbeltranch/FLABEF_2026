@@ -145,9 +145,12 @@ export const footers = pgTable("footers", {
   socialLinks: jsonb("social_links").default({}), // {facebook: "", instagram: "", tiktok: "", whatsapp: ""}
 });
 
-export const insertFooterSchema = createInsertSchema(footers).omit({
-  id: true,
-}).extend({
+export const insertFooterSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  address: z.string(),
+  phone: z.string(),
+  email: z.string(),
   socialLinks: z.record(z.string()).optional(),
 });
 
