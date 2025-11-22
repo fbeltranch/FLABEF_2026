@@ -562,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const isValid = await storage.verifyAdminDocument(email, documentNumber);
       if (!isValid) {
-        return res.status(400).json({ message: "Invalid email or document number" });
+        return res.status(400).json({ error: "Documento no válido para este email" });
       }
 
       res.json({ message: "Document verified" });

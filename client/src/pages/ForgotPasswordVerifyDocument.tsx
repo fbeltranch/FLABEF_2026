@@ -40,7 +40,7 @@ export default function ForgotPasswordVerifyDocument() {
         const error = await res.json();
         toast({
           title: "Error",
-          description: error.message || "Documento no válido",
+          description: error.error || "Documento no válido",
           variant: "destructive",
         });
         setIsLoading(false);
