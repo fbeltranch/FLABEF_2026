@@ -12,6 +12,7 @@ import TechStore from "@/pages/TechStore";
 import ITServices from "@/pages/ITServices";
 import FoodService from "@/pages/FoodService";
 import AdminDashboard from "@/pages/AdminDashboard";
+import AdminLogin from "@/pages/AdminLogin";
 import NotFound from "@/pages/not-found";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -73,7 +74,11 @@ function Router() {
           <Route path="/" component={TechStore} />
           <Route path="/it-services" component={ITServices} />
           <Route path="/food" component={FoodService} />
-          {isAuthenticated && <Route path="/admin-secret-2024" component={AdminDashboard} />}
+          {isAuthenticated ? (
+            <Route path="/admin-secret-2024" component={AdminDashboard} />
+          ) : (
+            <Route path="/admin-secret-2024" component={AdminLogin} />
+          )}
           <Route component={NotFound} />
         </Switch>
       </main>
