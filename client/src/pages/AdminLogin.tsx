@@ -57,7 +57,7 @@ export default function AdminLogin() {
           <CardTitle>Panel de Administración</CardTitle>
           <CardDescription>Inicia sesión con tus credenciales</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
@@ -91,13 +91,13 @@ export default function AdminLogin() {
             >
               {isLoading ? "Iniciando..." : "Iniciar Sesión"}
             </Button>
-
-            <a href="/admin-secret-2024/forgot-password">
-              <Button variant="outline" className="w-full" data-testid="button-forgot-password">
-                ¿Olvidaste tu Contraseña?
-              </Button>
-            </a>
           </form>
+
+          <a href="/admin-secret-2024/forgot-password" className="block">
+            <Button variant="outline" className="w-full" type="button" data-testid="button-forgot-password">
+              ¿Olvidaste tu Contraseña?
+            </Button>
+          </a>
         </CardContent>
       </Card>
     </div>
