@@ -147,6 +147,8 @@ export const footers = pgTable("footers", {
 
 export const insertFooterSchema = createInsertSchema(footers).omit({
   id: true,
+}).extend({
+  socialLinks: z.record(z.string()).optional(),
 });
 
 export const updateFooterSchema = insertFooterSchema.partial().refine(

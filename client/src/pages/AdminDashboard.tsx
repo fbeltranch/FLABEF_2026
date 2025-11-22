@@ -756,6 +756,10 @@ function FootersTab() {
       setEditingSection(null);
       toast({ title: "Footer actualizado exitosamente" });
     },
+    onError: (error: any) => {
+      console.error("Error updating footer:", error);
+      toast({ title: "Error", description: "No se pudo actualizar el footer", variant: "destructive" });
+    },
   });
 
   const handleEdit = (footer: Footer) => {
