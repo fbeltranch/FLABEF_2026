@@ -72,9 +72,10 @@ export default function ForgotPasswordMethod() {
       });
 
       if (!res.ok) {
+        const error = await res.json();
         toast({
           title: "Error",
-          description: "No se pudo enviar el código",
+          description: error.error || "No se pudo enviar el código",
           variant: "destructive",
         });
         setIsLoading(false);

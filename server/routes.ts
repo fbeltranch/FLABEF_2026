@@ -488,6 +488,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userEmail = adminEmail || email;
       const recoveryEmailToUse = recoveryEmail || email;
       
+      console.log("[EMAIL RESET] userEmail:", userEmail, "recoveryEmailToUse:", recoveryEmailToUse, "documentNumber:", documentNumber);
+      
       if (!userEmail) {
         return res.status(400).json({ error: "Email required" });
       }
@@ -496,7 +498,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (documentNumber) {
         const isValid = await storage.verifyAdminDocument(userEmail, documentNumber);
         if (!isValid) {
-          return res.status(400).json({ error: "Invalid email or document number" });
+          console.log("[EMAIL RESET] Document verification failed");
+          return res.status(400).json({ error: "Documento no válido para este email" });
         }
       }
 
@@ -504,7 +507,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (recoveryEmail || adminEmail) {
         const isValidRecoveryEmail = await storage.verifyRecoveryEmail(userEmail, recoveryEmailToUse);
         if (!isValidRecoveryEmail) {
-          return res.status(400).json({ error: "Email de recuperación no coincide" });
+          console.log("[EMAIL RESET] Recovery email verification failed");
+          return res.status(400).json({ error: "Email de recuperación no coincide. Asegúrate de ingresar el email exacto que registraste." });
         }
       }
 
