@@ -13,12 +13,21 @@ import heroImage from "@assets/generated_images/tech_store_hero_background.png";
 
 const categories = [
   { id: "all", label: "Todos" },
+  // Ropa
   { id: "camisetas", label: "Camisetas" },
   { id: "pantalones", label: "Pantalones" },
+  { id: "vestidos", label: "Vestidos" },
+  // Accesorios y Mochilas
   { id: "mochilas", label: "Mochilas" },
   { id: "zapatos", label: "Zapatos" },
-  { id: "vestidos", label: "Vestidos" },
   { id: "accesorios", label: "Accesorios" },
+  // Tecnología
+  { id: "laptops", label: "Laptops" },
+  { id: "pcs", label: "PCs Armadas" },
+  { id: "monitores", label: "Monitores" },
+  { id: "perifericos", label: "Periféricos" },
+  { id: "componentes", label: "Componentes" },
+  { id: "smartphones", label: "Smartphones" },
 ];
 
 export default function TechStore() {
@@ -86,13 +95,13 @@ export default function TechStore() {
         
         <div className="relative z-10 max-w-4xl mx-auto px-6">
           <Badge className="mb-6 bg-primary/20 text-primary-foreground border-primary/30" data-testid="badge-hero">
-            FLABEF Fashion Store
+            FLABEF Store
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-            Ropa y accesorios de calidad
+            Todo lo que necesitas en un solo lugar
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-200">
-            Colecciones exclusivas con estilo y comodidad para tu día a día
+            Ropa, accesorios, mochilas y tecnología de calidad premium
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -146,7 +155,7 @@ export default function TechStore() {
               <Badge className="mb-4 bg-destructive text-destructive-foreground">Ofertas del Día</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Productos Destacados</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Las mejores ofertas en ropa y accesorios premium seleccionados especialmente para ti
+                Las mejores ofertas en ropa, accesorios y tecnología seleccionados especialmente para ti
               </p>
             </div>
             
@@ -193,7 +202,7 @@ export default function TechStore() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Catálogo Completo</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Descubre nuestras colecciones de ropa y accesorios para todos los estilos y ocasiones
+              Explora nuestras colecciones de ropa, mochilas, accesorios y tecnología para todos tus necesidades
             </p>
           </div>
 

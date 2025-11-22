@@ -64,8 +64,9 @@ export class MemStorage implements IStorage {
   }
 
   private seedData() {
-    // Seed Products
+    // Seed Products (Ropa, Mochilas, Accesorios + Tecnología)
     const productsData: InsertProduct[] = [
+      // Ropa y Accesorios
       {
         name: "Camiseta Premium Algodón Puro",
         description: "Camiseta 100% algodón orgánico, suave y cómoda, disponible en múltiples colores",
@@ -134,6 +135,70 @@ export class MemStorage implements IStorage {
         description: "Bufanda de lana merino suave, cálida y transpirable, perfecta para invierno",
         price: "79.99",
         category: "accesorios",
+        image: "/api/placeholder/400/300",
+        featured: false,
+        inStock: true,
+      },
+      // Tecnología
+      {
+        name: "Laptop Gaming ROG Strix G16",
+        description: "Intel Core i7 13th Gen, RTX 4060, 16GB RAM, 512GB SSD, Pantalla 165Hz",
+        price: "5499.00",
+        category: "laptops",
+        image: "/api/placeholder/400/300",
+        featured: true,
+        inStock: true,
+      },
+      {
+        name: "PC Gamer RTX 4070 Ti",
+        description: "Intel i7-13700K, RTX 4070 Ti, 32GB DDR5, 1TB NVMe, Gabinete RGB",
+        price: "7999.00",
+        category: "pcs",
+        image: "/api/placeholder/400/300",
+        featured: true,
+        inStock: true,
+      },
+      {
+        name: "Monitor LG UltraGear 27\" 144Hz",
+        description: "IPS 1ms, QHD 2560x1440, HDR10, FreeSync Premium",
+        price: "1299.00",
+        category: "monitores",
+        image: "/api/placeholder/400/300",
+        featured: true,
+        inStock: true,
+      },
+      {
+        name: "Teclado Mecánico Logitech G Pro X",
+        description: "Switch GX Blue, RGB, TKL, Cable extraíble, Tournament Ready",
+        price: "549.00",
+        category: "perifericos",
+        image: "/api/placeholder/400/300",
+        featured: false,
+        inStock: true,
+      },
+      {
+        name: "Mouse Logitech G502 HERO",
+        description: "25,600 DPI, 11 botones programables, RGB Lightsync",
+        price: "249.00",
+        category: "perifericos",
+        image: "/api/placeholder/400/300",
+        featured: false,
+        inStock: true,
+      },
+      {
+        name: "SSD NVMe Samsung 980 Pro 1TB",
+        description: "PCIe 4.0, Lectura 7000 MB/s, Ideal para gaming y edición",
+        price: "449.00",
+        category: "componentes",
+        image: "/api/placeholder/400/300",
+        featured: false,
+        inStock: true,
+      },
+      {
+        name: "Smartphone Samsung Galaxy S24",
+        description: "Pantalla 6.1\" Dynamic AMOLED, Snapdragon 8 Gen 3, 256GB almacenamiento",
+        price: "1299.00",
+        category: "smartphones",
         image: "/api/placeholder/400/300",
         featured: false,
         inStock: true,

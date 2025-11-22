@@ -3,13 +3,13 @@ import { pgTable, text, varchar, integer, decimal, boolean } from "drizzle-orm/p
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// ============= CLOTHING STORE PRODUCTS =============
+// ============= ECOMMERCE PRODUCTS =============
 export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  category: text("category").notNull(), // camisetas, pantalones, mochilas, zapatos, vestidos, accesorios
+  category: text("category").notNull(), // camisetas, pantalones, mochilas, zapatos, vestidos, accesorios, laptops, pcs, monitores, perifericos, componentes, smartphones
   image: text("image").notNull(),
   featured: boolean("featured").notNull().default(false),
   inStock: boolean("in_stock").notNull().default(true),
