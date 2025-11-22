@@ -134,29 +134,31 @@ export default function AdminRegister() {
 
             <div>
               <Label htmlFor="email">Email (Login)</Label>
-              <Input
+              <input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@flabef.com"
                 disabled={isLoading}
                 required
                 data-testid="input-email"
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
               />
             </div>
 
             <div>
               <Label htmlFor="recoveryEmail">Email de Recuperación</Label>
-              <Input
+              <input
                 id="recoveryEmail"
-                type="email"
+                type="text"
                 value={recoveryEmail}
                 onChange={(e) => setRecoveryEmail(e.target.value)}
                 placeholder="recuperacion@flabef.com"
                 disabled={isLoading}
                 required
                 data-testid="input-recovery-email"
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Email que usarás para recuperar tu contraseña
