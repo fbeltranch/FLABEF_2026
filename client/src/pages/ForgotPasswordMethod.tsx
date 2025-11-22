@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function ForgotPasswordMethod() {
   const [location] = useLocation();
   const [email, setEmail] = useState("");
+  const [recoveryEmail, setRecoveryEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -45,6 +46,15 @@ export default function ForgotPasswordMethod() {
       return;
     }
 
+    if (!isSms && !recoveryEmail) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa un email de recuperación",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -53,7 +63,7 @@ export default function ForgotPasswordMethod() {
         : "/api/password-reset/request-email";
       const payload = isSms 
         ? { email, phone, documentNumber } 
-        : { email, documentNumber };
+        : { email: recoveryEmail, adminEmail: email, documentNumber };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -159,7 +169,7 @@ export default function ForgotPasswordMethod() {
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSms && (
+            {isSms ? (
               <div>
                 <Label htmlFor="phone">Teléfono</Label>
                 <Input
@@ -173,6 +183,23 @@ export default function ForgotPasswordMethod() {
                   required
                 />
               </div>
+            ) : (
+              <div>
+                <Label htmlFor="recoveryEmail">Email para recibir el código</Label>
+                <Input
+                  id="recoveryEmail"
+                  type="email"
+                  value={recoveryEmail}
+                  onChange={(e) => setRecoveryEmail(e.target.value)}
+                  placeholder="recuperacion@example.com"
+                  disabled={isLoading}
+                  data-testid="input-recovery-email"
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Ingresa el email donde quieres recibir el código (puede ser diferente al registrado)
+                </p>
+              </div>
             )}
 
             <Button
@@ -185,7 +212,7 @@ export default function ForgotPasswordMethod() {
             </Button>
           </form>
 
-          <a href="/admin-secret-2024/forgot-password" className="block">
+          <a href="/admin-secret-2024/forgot-password/select-method" className="block">
             <Button variant="outline" className="w-full" type="button" data-testid="button-back">
               Atrás
             </Button>

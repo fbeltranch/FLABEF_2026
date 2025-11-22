@@ -481,26 +481,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Request password reset via email (Alternative)
   app.post("/api/password-reset/request-email", async (req, res) => {
     try {
-      const { email, documentNumber } = req.body;
-      if (!email) {
+      const { email, adminEmail, documentNumber } = req.body;
+      const emailToUse = email || adminEmail; // Support both field names
+      
+      if (!emailToUse) {
         return res.status(400).json({ error: "Email required" });
       }
 
-      // Verify document first
-      if (documentNumber) {
-        const isValid = await storage.verifyAdminDocument(email, documentNumber);
+      // Verify document first - check adminEmail if provided
+      if (documentNumber && adminEmail) {
+        const isValid = await storage.verifyAdminDocument(adminEmail, documentNumber);
         if (!isValid) {
           return res.status(400).json({ error: "Invalid email or document number" });
         }
       }
 
-      const admin = await storage.getAdminByEmail(email);
+      const admin = adminEmail 
+        ? await storage.getAdminByEmail(adminEmail)
+        : await storage.getAdminByEmail(emailToUse);
+        
       if (!admin) {
         return res.json({ message: "If email exists, code will be sent" });
       }
 
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code, undefined, email);
+      await storage.createResetToken(admin.id, code, undefined, emailToUse);
 
       const isDev = process.env.NODE_ENV === "development";
 
