@@ -133,6 +133,31 @@ export const insertContactRequestSchema = createInsertSchema(contactRequests).om
 export type InsertContactRequest = z.infer<typeof insertContactRequestSchema>;
 export type ContactRequest = typeof contactRequests.$inferSelect;
 
+// ============= FOOTERS (Editable footers for each section) =============
+export const footers = pgTable("footers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  section: text("section").notNull().unique(), // "tech", "it_services", "food"
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  address: text("address").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  socialLinks: jsonb("social_links").default({}), // {facebook: "", instagram: "", etc}
+});
+
+export const insertFooterSchema = createInsertSchema(footers).omit({
+  id: true,
+});
+
+export const updateFooterSchema = insertFooterSchema.partial().refine(
+  (data) => Object.keys(data).length > 0,
+  { message: "At least one field must be provided for update" }
+);
+
+export type InsertFooter = z.infer<typeof insertFooterSchema>;
+export type UpdateFooter = z.infer<typeof updateFooterSchema>;
+export type Footer = typeof footers.$inferSelect;
+
 // ============= PRODUCT_OWNER (Optional - for future owner tracking) =============
 // This tracks which admin user created or owns a product
 export const productOwners = pgTable("product_owners", {

@@ -10,7 +10,8 @@ import {
   insertFoodItemSchema,
   updateFoodItemSchema,
   insertCartItemSchema,
-  insertContactRequestSchema 
+  insertContactRequestSchema,
+  insertFooterSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -281,6 +282,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(request);
     } catch (error) {
       res.status(400).json({ error: "Invalid contact request data" });
+    }
+  });
+
+  // ============= FOOTERS =============
+  app.get("/api/footers", async (_req, res) => {
+    try {
+      const footers = await storage.getAllFooters();
+      res.json(footers);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch footers" });
+    }
+  });
+
+  app.get("/api/footers/:section", async (req, res) => {
+    try {
+      const footer = await storage.getFooter(req.params.section);
+      if (!footer) {
+        return res.status(404).json({ error: "Footer not found" });
+      }
+      res.json(footer);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch footer" });
+    }
+  });
+
+  app.put("/api/footers/:section", isAuthenticated, async (req, res) => {
+    try {
+      const validated = insertFooterSchema.parse(req.body);
+      const footer = await storage.updateFooter(req.params.section, validated);
+      res.json(footer);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid footer data" });
     }
   });
 

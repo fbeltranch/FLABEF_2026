@@ -10,10 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Plus, Edit2, Trash2, X } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Facebook, Instagram, MessageCircle, MapPin, Phone, Mail } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Product, ITService, FoodItem } from "@shared/schema";
+import type { Product, ITService, FoodItem, Footer } from "@shared/schema";
 
 const productCategories = [
   "camisetas", "pantalones", "mochilas", "zapatos", "vestidos", "accesorios",
@@ -715,6 +715,203 @@ function FoodTab() {
   );
 }
 
+// ===== FOOTERS =====
+function FootersTab() {
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    address: "",
+    phone: "",
+    email: "",
+    facebook: "",
+    instagram: "",
+    whatsapp: "",
+  });
+  const { toast } = useToast();
+
+  const { data: footers = [] } = useQuery<Footer[]>({
+    queryKey: ["/api/footers"],
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (section: string) => {
+      return apiRequest("PUT", `/api/footers/${section}`, {
+        title: formData.title,
+        description: formData.description,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        socialLinks: {
+          facebook: formData.facebook,
+          instagram: formData.instagram,
+          whatsapp: formData.whatsapp,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/footers"] });
+      setEditingSection(null);
+      toast({ title: "Footer actualizado exitosamente" });
+    },
+  });
+
+  const handleEdit = (footer: Footer) => {
+    setEditingSection(footer.section);
+    const socialLinks = (footer.socialLinks as any) || {};
+    setFormData({
+      title: footer.title,
+      description: footer.description,
+      address: footer.address,
+      phone: footer.phone,
+      email: footer.email,
+      facebook: socialLinks.facebook || "",
+      instagram: socialLinks.instagram || "",
+      whatsapp: socialLinks.whatsapp || "",
+    });
+  };
+
+  const handleSubmit = () => {
+    if (!editingSection) return;
+    updateMutation.mutate(editingSection);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {footers.map((footer) => (
+          <Card key={footer.section} className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-lg">{footer.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 space-y-3 text-sm">
+              <p className="text-muted-foreground">{footer.description}</p>
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <p>{footer.address}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                <p>{footer.phone}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <p>{footer.email}</p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                size="sm" 
+                className="w-full"
+                onClick={() => handleEdit(footer)}
+              >
+                <Edit2 className="h-4 w-4 mr-2" />
+                Editar
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+
+      {editingSection && (
+        <Card className="border-2 border-primary">
+          <CardHeader>
+            <CardTitle>Editando Footer: {editingSection.toUpperCase()}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Título</Label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Ej: FLABEF Tech Store"
+              />
+            </div>
+            <div>
+              <Label>Descripción</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Descripción breve de la sección"
+                rows={2}
+              />
+            </div>
+            <div>
+              <Label>Dirección</Label>
+              <Input
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Ej: Av. Principal 123, Lima"
+              />
+            </div>
+            <div>
+              <Label>Teléfono</Label>
+              <Input
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+51 925 330 577"
+              />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="contacto@flabef.com"
+              />
+            </div>
+            <div className="pt-4 border-t">
+              <h4 className="font-semibold mb-3">Enlaces Sociales</h4>
+              <div className="space-y-3">
+                <div>
+                  <Label>Facebook URL</Label>
+                  <Input
+                    value={formData.facebook}
+                    onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                    placeholder="https://facebook.com/..."
+                  />
+                </div>
+                <div>
+                  <Label>Instagram URL</Label>
+                  <Input
+                    value={formData.instagram}
+                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    placeholder="https://instagram.com/..."
+                  />
+                </div>
+                <div>
+                  <Label>WhatsApp URL</Label>
+                  <Input
+                    value={formData.whatsapp}
+                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                    placeholder="https://wa.me/..."
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="gap-2">
+            <Button 
+              className="flex-1"
+              onClick={handleSubmit}
+              disabled={updateMutation.isPending}
+            >
+              Guardar Cambios
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setEditingSection(null)}
+            >
+              Cancelar
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+    </div>
+  );
+}
+
 // ===== MAIN ADMIN =====
 export default function AdminDashboard() {
   return (
@@ -722,10 +919,11 @@ export default function AdminDashboard() {
       <h1 className="text-4xl font-bold mb-8">Panel de Administración FLABEF</h1>
       
       <Tabs defaultValue="products" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="products">Productos Tech</TabsTrigger>
           <TabsTrigger value="it-services">Servicios IT</TabsTrigger>
           <TabsTrigger value="food">Comidas</TabsTrigger>
+          <TabsTrigger value="footers">Footers</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="mt-8">
@@ -738,6 +936,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="food" className="mt-8">
           <FoodTab />
+        </TabsContent>
+
+        <TabsContent value="footers" className="mt-8">
+          <FootersTab />
         </TabsContent>
       </Tabs>
     </div>

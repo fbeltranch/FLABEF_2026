@@ -11,12 +11,16 @@ import {
   type InsertContactRequest,
   type User,
   type UpsertUser,
+  type Footer,
+  type InsertFooter,
+  type UpdateFooter,
   products,
   itServices,
   foodItems,
   cartItems,
   contactRequests,
   users,
+  footers,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -58,6 +62,11 @@ export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+
+  // Footers
+  getFooter(section: string): Promise<Footer | undefined>;
+  updateFooter(section: string, footer: InsertFooter): Promise<Footer>;
+  getAllFooters(): Promise<Footer[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -216,6 +225,28 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return result[0];
+  }
+
+  // ===== Footers =====
+  async getFooter(section: string): Promise<Footer | undefined> {
+    const result = await db.select().from(footers).where(eq(footers.section, section));
+    return result[0];
+  }
+
+  async updateFooter(section: string, footer: InsertFooter): Promise<Footer> {
+    const result = await db
+      .insert(footers)
+      .values({ section, ...footer })
+      .onConflictDoUpdate({
+        target: footers.section,
+        set: footer,
+      })
+      .returning();
+    return result[0];
+  }
+
+  async getAllFooters(): Promise<Footer[]> {
+    return db.select().from(footers);
   }
 }
 

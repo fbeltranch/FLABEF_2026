@@ -269,6 +269,79 @@ export default function ITServices() {
           </Card>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer section="it_services" />
     </div>
+  );
+}
+
+function Footer({ section }: { section: "tech" | "it_services" | "food" }) {
+  const { data: footer } = useQuery({
+    queryKey: ["/api/footers", section],
+    queryFn: async () => {
+      const res = await fetch(`/api/footers/${section}`);
+      return res.json() as any;
+    },
+  });
+
+  if (!footer) return null;
+
+  const socialLinks = footer.socialLinks || {};
+
+  return (
+    <footer className="bg-muted/50 border-t">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="font-bold text-lg mb-4">{footer.title}</h3>
+            <p className="text-sm text-muted-foreground">{footer.description}</p>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Contacto</h4>
+            <div className="space-y-2 text-sm">
+              <p className="text-muted-foreground">📍 {footer.address}</p>
+              <p className="text-muted-foreground">📞 {footer.phone}</p>
+              <p className="text-muted-foreground">📧 {footer.email}</p>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Enlaces Rápidos</h4>
+            <div className="space-y-2 text-sm">
+              <a href="/" className="text-muted-foreground hover:text-foreground transition">Inicio</a>
+              <br />
+              <a href="/admin" className="text-muted-foreground hover:text-foreground transition">Admin</a>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Síguenos</h4>
+            <div className="flex gap-4">
+              {socialLinks.facebook && (
+                <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition">
+                  f
+                </a>
+              )}
+              {socialLinks.instagram && (
+                <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition">
+                  📷
+                </a>
+              )}
+              {socialLinks.whatsapp && (
+                <a href={socialLinks.whatsapp} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition">
+                  💬
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <p>&copy; 2025 FLABEF. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
   );
 }
