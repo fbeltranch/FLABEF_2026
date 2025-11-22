@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./simpleAuth";
 import { 
   insertProductSchema,
   updateProductSchema,
@@ -13,6 +14,16 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
+
+  // ============= AUTH ROUTES =============
+  app.get('/api/auth/user', (req: any, res) => {
+    if (req.session.userId) {
+      return res.json({ email: req.session.user?.email || "admin" });
+    }
+    res.status(401).json({ message: "Not authenticated" });
+  });
   // ============= PRODUCTS =============
   app.get("/api/products", async (req, res) => {
     try {
@@ -36,7 +47,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/products", async (req, res) => {
+  // Protected admin routes
+  app.post("/api/products", isAuthenticated, async (req, res) => {
     try {
       const validated = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validated);
@@ -46,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/products/:id", async (req, res) => {
+  app.put("/api/products/:id", isAuthenticated, async (req, res) => {
     try {
       const validated = updateProductSchema.parse(req.body);
       const product = await storage.updateProduct(req.params.id, validated);
@@ -59,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/products/:id", async (req, res) => {
+  app.delete("/api/products/:id", isAuthenticated, async (req, res) => {
     try {
       const success = await storage.deleteProduct(req.params.id);
       if (!success) {

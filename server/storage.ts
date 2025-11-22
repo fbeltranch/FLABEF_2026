@@ -8,8 +8,18 @@ import {
   type CartItem,
   type InsertCartItem,
   type ContactRequest,
-  type InsertContactRequest
+  type InsertContactRequest,
+  type User,
+  type UpsertUser,
+  products,
+  itServices,
+  foodItems,
+  cartItems,
+  contactRequests,
+  users,
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -44,413 +54,115 @@ export interface IStorage {
   
   // Contact
   createContactRequest(request: InsertContactRequest): Promise<ContactRequest>;
+
+  // Users
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
 }
 
-export class MemStorage implements IStorage {
-  private products: Map<string, Product>;
-  private itServices: Map<string, ITService>;
-  private foodItems: Map<string, FoodItem>;
+export class DatabaseStorage implements IStorage {
   private cartItems: Map<string, CartItem>;
-  private contactRequests: Map<string, ContactRequest>;
 
   constructor() {
-    this.products = new Map();
-    this.itServices = new Map();
-    this.foodItems = new Map();
     this.cartItems = new Map();
-    this.contactRequests = new Map();
-    
-    this.seedData();
   }
 
-  private seedData() {
-    // Seed Products (Ropa, Mochilas, Accesorios + Tecnología)
-    const productsData: InsertProduct[] = [
-      // Ropa y Accesorios
-      {
-        name: "Camiseta Premium Algodón Puro",
-        description: "Camiseta 100% algodón orgánico, suave y cómoda, disponible en múltiples colores",
-        price: "49.99",
-        category: "camisetas",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "Mochila Urban Backpack XL",
-        description: "Mochila espaciosa con múltiples compartimentos, ideal para viajes y trabajo",
-        price: "129.99",
-        category: "mochilas",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "Pantalón Jeans Clásico",
-        description: "Pantalón jeans de corte recto, tela resistente y cómoda para el día a día",
-        price: "89.99",
-        category: "pantalones",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "Zapatos Deportivos Running",
-        description: "Zapatillas deportivas ligeras con tecnología de amortiguación superior",
-        price: "159.99",
-        category: "zapatos",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "Vestido Casual Elegante",
-        description: "Vestido versátil perfecto para eventos casuales y trabajo, tela suave",
-        price: "119.99",
-        category: "vestidos",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      {
-        name: "Cinturón de Cuero Auténtico",
-        description: "Cinturón de cuero premium con hebilla clásica, durable y elegante",
-        price: "59.99",
-        category: "accesorios",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      {
-        name: "Gorra Deportiva Ajustable",
-        description: "Gorra de algodón con cierre ajustable, protección UV",
-        price: "34.99",
-        category: "accesorios",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      {
-        name: "Bufanda Lana Merino",
-        description: "Bufanda de lana merino suave, cálida y transpirable, perfecta para invierno",
-        price: "79.99",
-        category: "accesorios",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      // Tecnología
-      {
-        name: "Laptop Gaming ROG Strix G16",
-        description: "Intel Core i7 13th Gen, RTX 4060, 16GB RAM, 512GB SSD, Pantalla 165Hz",
-        price: "5499.00",
-        category: "laptops",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "PC Gamer RTX 4070 Ti",
-        description: "Intel i7-13700K, RTX 4070 Ti, 32GB DDR5, 1TB NVMe, Gabinete RGB",
-        price: "7999.00",
-        category: "pcs",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "Monitor LG UltraGear 27\" 144Hz",
-        description: "IPS 1ms, QHD 2560x1440, HDR10, FreeSync Premium",
-        price: "1299.00",
-        category: "monitores",
-        image: "/api/placeholder/400/300",
-        featured: true,
-        inStock: true,
-      },
-      {
-        name: "Teclado Mecánico Logitech G Pro X",
-        description: "Switch GX Blue, RGB, TKL, Cable extraíble, Tournament Ready",
-        price: "549.00",
-        category: "perifericos",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      {
-        name: "Mouse Logitech G502 HERO",
-        description: "25,600 DPI, 11 botones programables, RGB Lightsync",
-        price: "249.00",
-        category: "perifericos",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      {
-        name: "SSD NVMe Samsung 980 Pro 1TB",
-        description: "PCIe 4.0, Lectura 7000 MB/s, Ideal para gaming y edición",
-        price: "449.00",
-        category: "componentes",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-      {
-        name: "Smartphone Samsung Galaxy S24",
-        description: "Pantalla 6.1\" Dynamic AMOLED, Snapdragon 8 Gen 3, 256GB almacenamiento",
-        price: "1299.00",
-        category: "smartphones",
-        image: "/api/placeholder/400/300",
-        featured: false,
-        inStock: true,
-      },
-    ];
-
-    productsData.forEach(product => this.createProduct(product));
-
-    // Seed IT Services
-    const itServicesData: InsertITService[] = [
-      {
-        title: "Soporte Técnico Remoto",
-        description: "Asistencia técnica profesional desde la comodidad de tu hogar u oficina",
-        features: [
-          "Acceso remoto seguro",
-          "Diagnóstico en tiempo real",
-          "Solución inmediata de problemas",
-          "Disponible 24/7"
-        ],
-        icon: "laptop",
-        available: true,
-      },
-      {
-        title: "Armado y Optimización de PC",
-        description: "Ensamblaje profesional de PCs gaming y workstation a medida",
-        features: [
-          "Selección de componentes",
-          "Ensamblaje profesional",
-          "Cable management premium",
-          "Pruebas de rendimiento"
-        ],
-        icon: "settings",
-        available: true,
-      },
-      {
-        title: "Mantenimiento Preventivo",
-        description: "Limpieza y optimización completa de tu equipo",
-        features: [
-          "Limpieza interna profunda",
-          "Renovación pasta térmica",
-          "Optimización de software",
-          "Backup de datos"
-        ],
-        icon: "wrench",
-        available: true,
-      },
-      {
-        title: "Reparación de Hardware",
-        description: "Diagnóstico y reparación de componentes defectuosos",
-        features: [
-          "Diagnóstico preciso",
-          "Reparación de placa madre",
-          "Reemplazo de componentes",
-          "Garantía de servicio"
-        ],
-        icon: "hardDrive",
-        available: true,
-      },
-      {
-        title: "Instalación de Software",
-        description: "Instalación y configuración de sistemas operativos y programas",
-        features: [
-          "Windows 10/11 original",
-          "Drivers actualizados",
-          "Software de productividad",
-          "Antivirus y seguridad"
-        ],
-        icon: "shield",
-        available: true,
-      },
-      {
-        title: "Soporte para Empresas",
-        description: "Soluciones IT corporativas y mantenimiento de redes",
-        features: [
-          "Configuración de redes",
-          "Servidores y NAS",
-          "Mantenimiento preventivo",
-          "Soporte on-site"
-        ],
-        icon: "database",
-        available: true,
-      },
-    ];
-
-    itServicesData.forEach(service => this.createITService(service));
-
-    // Seed Food Items
-    const foodItemsData: InsertFoodItem[] = [
-      {
-        name: "Lomo Saltado",
-        description: "Jugosos trozos de carne salteados con cebolla, tomate y papas fritas, acompañado de arroz blanco",
-        price: "18.00",
-        category: "almuerzos",
-        image: "/api/placeholder/400/300",
-        available: true,
-      },
-      {
-        name: "Arroz con Pollo",
-        description: "Tradicional arroz verde con pollo dorado, papa a la huancaína y ensalada fresca",
-        price: "15.00",
-        category: "almuerzos",
-        image: "/api/placeholder/400/300",
-        available: true,
-      },
-      {
-        name: "Pollo a la Plancha",
-        description: "Pechuga de pollo jugosa con ensalada fresca, arroz blanco y papas doradas",
-        price: "14.00",
-        category: "almuerzos",
-        image: "/api/placeholder/400/300",
-        available: true,
-      },
-      {
-        name: "Desayuno Completo",
-        description: "Café, pan con mantequilla, huevos revueltos, jugo de naranja y fruta fresca",
-        price: "12.00",
-        category: "desayunos",
-        image: "/api/placeholder/400/300",
-        available: true,
-      },
-      {
-        name: "Tamales Peruanos",
-        description: "Tamales caseros de pollo o cerdo, servidos con salsa criolla y pan",
-        price: "8.00",
-        category: "desayunos",
-        image: "/api/placeholder/400/300",
-        available: true,
-      },
-      {
-        name: "Chicha Morada",
-        description: "Refrescante bebida tradicional peruana hecha con maíz morado y frutas",
-        price: "5.00",
-        category: "snacks",
-        image: "/api/placeholder/400/300",
-        available: true,
-      },
-    ];
-
-    foodItemsData.forEach(item => this.createFoodItem(item));
-  }
-
-  // Products
+  // ===== Products =====
   async getProducts(category?: string): Promise<Product[]> {
-    const productsList = Array.from(this.products.values());
+    let query = db.select().from(products);
     if (category && category !== "all") {
-      return productsList.filter(p => p.category === category);
+      query = query.where(eq(products.category, category));
     }
-    return productsList;
+    return query;
   }
 
   async getProduct(id: string): Promise<Product | undefined> {
-    return this.products.get(id);
+    const result = await db.select().from(products).where(eq(products.id, id));
+    return result[0];
   }
 
-  async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = randomUUID();
-    const product: Product = { ...insertProduct, id };
-    this.products.set(id, product);
-    return product;
+  async createProduct(product: InsertProduct): Promise<Product> {
+    const result = await db.insert(products).values(product).returning();
+    return result[0];
   }
 
   async updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product | undefined> {
-    const product = this.products.get(id);
-    if (!product) return undefined;
-    
-    // Filter out undefined values to prevent accidental field clearing
-    const filteredUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, value]) => value !== undefined)
-    ) as Partial<InsertProduct>;
-    
-    const updatedProduct = { ...product, ...filteredUpdates };
-    this.products.set(id, updatedProduct);
-    return updatedProduct;
+    const result = await db
+      .update(products)
+      .set(updates)
+      .where(eq(products.id, id))
+      .returning();
+    return result[0];
   }
 
   async deleteProduct(id: string): Promise<boolean> {
-    return this.products.delete(id);
+    const result = await db.delete(products).where(eq(products.id, id));
+    return result.rowCount > 0;
   }
 
-  // IT Services
+  // ===== IT Services =====
   async getITServices(): Promise<ITService[]> {
-    return Array.from(this.itServices.values());
+    return db.select().from(itServices);
   }
 
   async getITService(id: string): Promise<ITService | undefined> {
-    return this.itServices.get(id);
+    const result = await db.select().from(itServices).where(eq(itServices.id, id));
+    return result[0];
   }
 
-  async createITService(insertService: InsertITService): Promise<ITService> {
-    const id = randomUUID();
-    const service: ITService = { ...insertService, id };
-    this.itServices.set(id, service);
-    return service;
+  async createITService(service: InsertITService): Promise<ITService> {
+    const result = await db.insert(itServices).values(service).returning();
+    return result[0];
   }
 
   async updateITService(id: string, updates: Partial<InsertITService>): Promise<ITService | undefined> {
-    const service = this.itServices.get(id);
-    if (!service) return undefined;
-    
-    // Filter out undefined values to prevent accidental field clearing
-    const filteredUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, value]) => value !== undefined)
-    ) as Partial<InsertITService>;
-    
-    const updatedService = { ...service, ...filteredUpdates };
-    this.itServices.set(id, updatedService);
-    return updatedService;
+    const result = await db
+      .update(itServices)
+      .set(updates)
+      .where(eq(itServices.id, id))
+      .returning();
+    return result[0];
   }
 
   async deleteITService(id: string): Promise<boolean> {
-    return this.itServices.delete(id);
+    const result = await db.delete(itServices).where(eq(itServices.id, id));
+    return result.rowCount > 0;
   }
 
-  // Food Items
+  // ===== Food Items =====
   async getFoodItems(category?: string): Promise<FoodItem[]> {
-    const items = Array.from(this.foodItems.values());
+    let query = db.select().from(foodItems);
     if (category && category !== "all") {
-      return items.filter(i => i.category === category);
+      query = query.where(eq(foodItems.category, category));
     }
-    return items;
+    return query;
   }
 
   async getFoodItem(id: string): Promise<FoodItem | undefined> {
-    return this.foodItems.get(id);
+    const result = await db.select().from(foodItems).where(eq(foodItems.id, id));
+    return result[0];
   }
 
-  async createFoodItem(insertItem: InsertFoodItem): Promise<FoodItem> {
-    const id = randomUUID();
-    const item: FoodItem = { ...insertItem, id };
-    this.foodItems.set(id, item);
-    return item;
+  async createFoodItem(item: InsertFoodItem): Promise<FoodItem> {
+    const result = await db.insert(foodItems).values(item).returning();
+    return result[0];
   }
 
   async updateFoodItem(id: string, updates: Partial<InsertFoodItem>): Promise<FoodItem | undefined> {
-    const item = this.foodItems.get(id);
-    if (!item) return undefined;
-    
-    // Filter out undefined values to prevent accidental field clearing
-    const filteredUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, value]) => value !== undefined)
-    ) as Partial<InsertFoodItem>;
-    
-    const updatedItem = { ...item, ...filteredUpdates };
-    this.foodItems.set(id, updatedItem);
-    return updatedItem;
+    const result = await db
+      .update(foodItems)
+      .set(updates)
+      .where(eq(foodItems.id, id))
+      .returning();
+    return result[0];
   }
 
   async deleteFoodItem(id: string): Promise<boolean> {
-    return this.foodItems.delete(id);
+    const result = await db.delete(foodItems).where(eq(foodItems.id, id));
+    return result.rowCount > 0;
   }
 
-  // Cart
+  // ===== Cart (In-Memory) =====
   async getCartItems(): Promise<CartItem[]> {
     return Array.from(this.cartItems.values());
   }
@@ -459,20 +171,19 @@ export class MemStorage implements IStorage {
     return this.cartItems.get(id);
   }
 
-  async addCartItem(insertItem: InsertCartItem): Promise<CartItem> {
+  async addCartItem(item: InsertCartItem): Promise<CartItem> {
     const id = randomUUID();
-    const item: CartItem = { ...insertItem, id };
-    this.cartItems.set(id, item);
-    return item;
+    const cartItem: CartItem = { ...item, id };
+    this.cartItems.set(id, cartItem);
+    return cartItem;
   }
 
   async updateCartItem(id: string, quantity: number): Promise<CartItem | undefined> {
     const item = this.cartItems.get(id);
     if (!item) return undefined;
-    
-    const updatedItem = { ...item, quantity };
-    this.cartItems.set(id, updatedItem);
-    return updatedItem;
+    const updated = { ...item, quantity };
+    this.cartItems.set(id, updated);
+    return updated;
   }
 
   async removeCartItem(id: string): Promise<boolean> {
@@ -483,13 +194,29 @@ export class MemStorage implements IStorage {
     this.cartItems.clear();
   }
 
-  // Contact
-  async createContactRequest(insertRequest: InsertContactRequest): Promise<ContactRequest> {
-    const id = randomUUID();
-    const request: ContactRequest = { ...insertRequest, id };
-    this.contactRequests.set(id, request);
-    return request;
+  // ===== Contact Requests =====
+  async createContactRequest(request: InsertContactRequest): Promise<ContactRequest> {
+    const result = await db.insert(contactRequests).values(request).returning();
+    return result[0];
+  }
+
+  // ===== Users =====
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const result = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: userData,
+      })
+      .returning();
+    return result[0];
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

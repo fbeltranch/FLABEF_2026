@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "./lib/queryClient";
@@ -11,11 +11,17 @@ import { ShoppingCartSheet } from "@/components/ShoppingCartSheet";
 import TechStore from "@/pages/TechStore";
 import ITServices from "@/pages/ITServices";
 import FoodService from "@/pages/FoodService";
+import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/not-found";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import type { CartItem } from "@shared/schema";
 
 function Router() {
   const [cartOpen, setCartOpen] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
 
   const { data: cartItems = [] } = useQuery<CartItem[]>({
     queryKey: ["/api/cart"],
@@ -28,6 +34,18 @@ function Router() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
     },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Sesión expirada",
+          description: "Por favor inicia sesión nuevamente",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+      }
+    },
   });
 
   const removeItemMutation = useMutation({
@@ -38,6 +56,10 @@ function Router() {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
     },
   });
+
+  if (isLoading) {
+    return <div className="min-h-screen" />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -51,6 +73,7 @@ function Router() {
           <Route path="/" component={TechStore} />
           <Route path="/it-services" component={ITServices} />
           <Route path="/food" component={FoodService} />
+          {isAuthenticated && <Route path="/admin" component={AdminDashboard} />}
           <Route component={NotFound} />
         </Switch>
       </main>

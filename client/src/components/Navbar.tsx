@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, Menu, X, Laptop, Wrench, UtensilsCrossed } from "lucide-react";
+import { ShoppingCart, Menu, X, Laptop, Wrench, UtensilsCrossed, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavbarProps {
   cartItemCount?: number;
@@ -13,11 +15,13 @@ interface NavbarProps {
 export function Navbar({ cartItemCount = 0, onCartClick }: NavbarProps) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
   const navItems = [
     { path: "/", label: "Tech Store", icon: Laptop },
     { path: "/it-services", label: "Servicios IT", icon: Wrench },
     { path: "/food", label: "Comida", icon: UtensilsCrossed },
+    ...(isAuthenticated ? [{ path: "/admin", label: "Admin", icon: Settings }] : []),
   ];
 
   const NavLinks = ({ mobile = false }) => (
@@ -85,6 +89,45 @@ export function Navbar({ cartItemCount = 0, onCartClick }: NavbarProps) {
                     {cartItemCount}
                   </Badge>
                 )}
+              </Button>
+            )}
+
+            {/* User Menu */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.profileImageUrl} />
+                  <AvatarFallback>{user?.email?.[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    await fetch("/api/logout", { method: "POST" });
+                    window.location.href = "/";
+                  }}
+                  className="gap-1"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Salir
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => {
+                  const email = prompt("Email:");
+                  if (!email) return;
+                  const password = prompt("Contraseña:");
+                  if (!password) return;
+                  fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }),
+                  }).then(() => window.location.reload());
+                }}
+              >
+                Iniciar Sesión
               </Button>
             )}
 
