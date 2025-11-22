@@ -98,7 +98,7 @@ export default function ForgotPassword() {
             </Button>
 
             <a href="/admin-secret-2024">
-              <Button variant="outline" className="w-full" data-testid="button-back-to-login">
+              <Button type="button" variant="outline" className="w-full" data-testid="button-back-to-login">
                 Volver al Login
               </Button>
             </a>
