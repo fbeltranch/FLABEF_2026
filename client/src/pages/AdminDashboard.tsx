@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { LogOut } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -1469,9 +1470,29 @@ function BrandingTab() {
 
 // ===== MAIN ADMIN =====
 export default function AdminDashboard() {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+      window.location.href = "/admin-secret-2024";
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8">Panel de Administración FLABEF</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">Panel de Administración FLABEF</h1>
+        <Button 
+          variant="destructive" 
+          onClick={handleLogout}
+          className="flex items-center gap-2"
+          data-testid="button-logout"
+        >
+          <LogOut className="h-4 w-4" />
+          Cerrar Sesión
+        </Button>
+      </div>
       
       <Tabs defaultValue="products" className="w-full">
         <TabsList className="grid w-full grid-cols-6">
