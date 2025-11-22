@@ -193,7 +193,6 @@ export default function ForgotPasswordMethod() {
                   value={recoveryEmail}
                   onChange={(e) => setRecoveryEmail(e.target.value)}
                   placeholder="tu.email@ejemplo.com"
-                  disabled={isLoading}
                   autoFocus
                   data-testid="input-recovery-email"
                 />
