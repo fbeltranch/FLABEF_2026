@@ -110,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/it-services", async (req, res) => {
+  app.post("/api/it-services", isAuthenticated, async (req, res) => {
     try {
       const validated = insertITServiceSchema.parse(req.body);
       const service = await storage.createITService(validated);
@@ -120,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/it-services/:id", async (req, res) => {
+  app.put("/api/it-services/:id", isAuthenticated, async (req, res) => {
     try {
       const validated = updateITServiceSchema.parse(req.body);
       const service = await storage.updateITService(req.params.id, validated);
@@ -133,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/it-services/:id", async (req, res) => {
+  app.delete("/api/it-services/:id", isAuthenticated, async (req, res) => {
     try {
       const success = await storage.deleteITService(req.params.id);
       if (!success) {
@@ -168,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/food-items", async (req, res) => {
+  app.post("/api/food-items", isAuthenticated, async (req, res) => {
     try {
       const validated = insertFoodItemSchema.parse(req.body);
       const item = await storage.createFoodItem(validated);
@@ -178,7 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/food-items/:id", async (req, res) => {
+  app.put("/api/food-items/:id", isAuthenticated, async (req, res) => {
     try {
       const validated = updateFoodItemSchema.parse(req.body);
       const item = await storage.updateFoodItem(req.params.id, validated);
@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/food-items/:id", async (req, res) => {
+  app.delete("/api/food-items/:id", isAuthenticated, async (req, res) => {
     try {
       const success = await storage.deleteFoodItem(req.params.id);
       if (!success) {

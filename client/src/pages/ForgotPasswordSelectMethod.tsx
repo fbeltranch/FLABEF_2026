@@ -6,18 +6,13 @@ export default function ForgotPasswordSelectMethod() {
   const url = new URL(fullUrl);
   const documentNumber = url.searchParams.get("documentNumber") || "";
 
-  console.log("[DEBUG] SelectMethod - Full URL:", fullUrl);
-  console.log("[DEBUG] SelectMethod - documentNumber:", documentNumber);
-
   const handleSmsClick = () => {
     const newUrl = `/admin-secret-2024/forgot-password/sms?documentNumber=${encodeURIComponent(documentNumber)}`;
-    console.log("[DEBUG] Navigating to SMS:", newUrl);
     window.location.href = newUrl;
   };
 
   const handleEmailClick = () => {
     const newUrl = `/admin-secret-2024/forgot-password/email?documentNumber=${encodeURIComponent(documentNumber)}`;
-    console.log("[DEBUG] Navigating to Email:", newUrl);
     window.location.href = newUrl;
   };
 

@@ -24,8 +24,6 @@ export default function ForgotPasswordMethod() {
     const url = new URL(fullUrl);
     const docNum = url.searchParams.get("documentNumber") || "";
     setDocumentNumber(docNum);
-    console.log("[DEBUG] Full URL:", fullUrl);
-    console.log("[DEBUG] Loaded documentNumber:", docNum);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,8 +56,6 @@ export default function ForgotPasswordMethod() {
       const payload = isSms 
         ? { phone, documentNumber } 
         : { email: recoveryEmail, documentNumber };
-
-      console.log("[DEBUG] Sending payload:", payload);
 
       const res = await fetch(endpoint, {
         method: "POST",
