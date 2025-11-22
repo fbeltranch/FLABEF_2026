@@ -20,8 +20,9 @@ export default function ForgotPasswordMethod() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setEmail(params.get("email") || "");
-    setDocumentNumber(params.get("documentNumber") || "");
+    const docNum = params.get("documentNumber") || "";
+    setDocumentNumber(docNum);
+    console.log("[DEBUG] Loaded documentNumber:", docNum);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,6 +55,8 @@ export default function ForgotPasswordMethod() {
       const payload = isSms 
         ? { phone, documentNumber } 
         : { email: recoveryEmail, documentNumber };
+
+      console.log("[DEBUG] Sending payload:", payload);
 
       const res = await fetch(endpoint, {
         method: "POST",
