@@ -19,9 +19,12 @@ export default function ForgotPasswordMethod() {
   const isSms = location.includes("/sms");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const docNum = params.get("documentNumber") || "";
+    // Extract documentNumber from URL search params
+    const fullUrl = window.location.href;
+    const url = new URL(fullUrl);
+    const docNum = url.searchParams.get("documentNumber") || "";
     setDocumentNumber(docNum);
+    console.log("[DEBUG] Full URL:", fullUrl);
     console.log("[DEBUG] Loaded documentNumber:", docNum);
   }, []);
 
