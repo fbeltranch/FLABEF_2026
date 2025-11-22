@@ -6,19 +6,18 @@ export default function ForgotPasswordSelectMethod() {
   const [location] = useLocation();
   
   const searchParams = new URLSearchParams(location.split("?")[1]);
-  const email = searchParams.get("email") || "";
   const documentNumber = searchParams.get("documentNumber") || "";
 
   const handleSmsClick = () => {
-    window.location.href = `/admin-secret-2024/forgot-password/sms?email=${encodeURIComponent(email)}&documentNumber=${encodeURIComponent(documentNumber)}`;
+    window.location.href = `/admin-secret-2024/forgot-password/sms?documentNumber=${encodeURIComponent(documentNumber)}`;
   };
 
   const handleEmailClick = () => {
-    window.location.href = `/admin-secret-2024/forgot-password/email?email=${encodeURIComponent(email)}&documentNumber=${encodeURIComponent(documentNumber)}`;
+    window.location.href = `/admin-secret-2024/forgot-password/email?documentNumber=${encodeURIComponent(documentNumber)}`;
   };
 
   const handleBack = () => {
-    window.location.href = `/admin-secret-2024/forgot-password/verify-document?email=${encodeURIComponent(email)}`;
+    window.location.href = `/admin-secret-2024/forgot-password`;
   };
 
   return (

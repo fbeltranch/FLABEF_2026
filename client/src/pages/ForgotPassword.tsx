@@ -1,22 +1,20 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+  const [documentNumber, setDocumentNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
+    if (!documentNumber.trim()) {
       toast({
         title: "Error",
-        description: "Por favor ingresa tu email",
+        description: "Por favor ingresa tu número de documento",
         variant: "destructive",
       });
       return;
@@ -25,18 +23,17 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      // Just verify email exists in system
-      const res = await fetch("/api/password-reset/verify-email-exists", {
+      const res = await fetch("/api/password-reset/verify-document-simple", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ documentNumber }),
       });
 
       if (!res.ok) {
         const error = await res.json();
         toast({
           title: "Error",
-          description: error.error || "Email no encontrado",
+          description: error.error || "Documento no encontrado",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -45,12 +42,11 @@ export default function ForgotPassword() {
 
       toast({
         title: "Éxito",
-        description: "Email encontrado",
+        description: "Documento verificado",
       });
 
-      // Redirect to document verification
       setTimeout(() => {
-        window.location.href = `/admin-secret-2024/forgot-password/verify-document?email=${encodeURIComponent(email)}`;
+        window.location.href = `/admin-secret-2024/forgot-password/select-method?documentNumber=${encodeURIComponent(documentNumber)}`;
       }, 500);
     } catch (error) {
       toast({
@@ -62,31 +58,34 @@ export default function ForgotPassword() {
     }
   };
 
-  if (submitted) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>¿Olvidaste tu Contraseña?</CardTitle>
-          <CardDescription>Ingresa tu email para recuperar tu cuenta</CardDescription>
+          <CardTitle>Recuperar Contraseña</CardTitle>
+          <CardDescription>
+            Ingresa tu número de documento para recuperar tu contraseña
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@flabef.com"
+              <Label htmlFor="documentNumber">Número de Documento</Label>
+              <input
+                id="documentNumber"
+                type="text"
+                value={documentNumber}
+                onChange={(e) => setDocumentNumber(e.target.value)}
+                placeholder="12345678"
                 disabled={isLoading}
                 required
-                data-testid="input-email"
+                data-testid="input-document-number"
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                autoFocus
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                DNI, Pasaporte o Carnet de Extranjería
+              </p>
             </div>
 
             <Button

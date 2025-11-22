@@ -27,15 +27,6 @@ export default function ForgotPasswordMethod() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "Email no encontrado",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (isSms && !phone) {
       toast({
         title: "Error",
@@ -48,7 +39,7 @@ export default function ForgotPasswordMethod() {
     if (!isSms && !recoveryEmail) {
       toast({
         title: "Error",
-        description: "Por favor ingresa un email de recuperación",
+        description: "Por favor ingresa tu email de recuperación",
         variant: "destructive",
       });
       return;
@@ -61,8 +52,8 @@ export default function ForgotPasswordMethod() {
         ? "/api/password-reset/request-sms"
         : "/api/password-reset/request-email";
       const payload = isSms 
-        ? { email, phone, documentNumber } 
-        : { email: recoveryEmail, adminEmail: email, documentNumber };
+        ? { phone, documentNumber } 
+        : { email: recoveryEmail, documentNumber };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -127,7 +118,7 @@ export default function ForgotPasswordMethod() {
               </div>
             )}
 
-            <a href={`/admin-secret-2024/reset-password?email=${encodeURIComponent(email)}`}>
+            <a href={`/admin-secret-2024/reset-password?documentNumber=${encodeURIComponent(documentNumber)}`}>
               <Button className="w-full" data-testid="button-go-to-reset">
                 Continuar a Resetear Contraseña
               </Button>

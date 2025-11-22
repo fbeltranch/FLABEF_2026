@@ -416,31 +416,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ============= PASSWORD RESET =============
-  // Request password reset via SMS (Opción 3)
+  // Request password reset via SMS
   app.post("/api/password-reset/request-sms", async (req, res) => {
     try {
-      const { email, phone, documentNumber } = req.body;
-      if (!email || !phone) {
-        return res.status(400).json({ error: "Email and phone required" });
+      const { phone, documentNumber } = req.body;
+      if (!phone || !documentNumber) {
+        return res.status(400).json({ error: "Phone and document number required" });
       }
 
-      // Verify document first
-      if (documentNumber) {
-        const isValid = await storage.verifyAdminDocument(email, documentNumber);
-        if (!isValid) {
-          return res.status(400).json({ error: "Invalid email or document number" });
-        }
-      }
-
-      const admin = await storage.getAdminByEmail(email);
+      const admin = await storage.getAdminByDocument(documentNumber);
       if (!admin) {
-        // Don't reveal if user exists
-        return res.json({ message: "If email exists, code will be sent" });
+        return res.status(400).json({ error: "Documento no encontrado" });
       }
 
       // Generate 6-digit code
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code, phone, email);
+      await storage.createResetToken(admin.id, code, phone, admin.email);
 
       const isDev = process.env.NODE_ENV === "development";
       let smsSent = false;
@@ -478,55 +469,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Request password reset via email (Alternative)
+  // Request password reset via email
   app.post("/api/password-reset/request-email", async (req, res) => {
     try {
-      const { email, adminEmail, documentNumber, recoveryEmail } = req.body;
+      const { email, documentNumber } = req.body;
       
-      // email can be either admin email (from initial step) or recovery email (from method selection)
-      // adminEmail is the user's login email
-      const userEmail = adminEmail || email;
-      const recoveryEmailToUse = recoveryEmail || email;
-      
-      console.log("[EMAIL RESET] userEmail:", userEmail, "recoveryEmailToUse:", recoveryEmailToUse, "documentNumber:", documentNumber);
-      
-      if (!userEmail) {
-        return res.status(400).json({ error: "Email required" });
+      if (!email || !documentNumber) {
+        return res.status(400).json({ error: "Email and document number required" });
       }
 
-      // Verify document first
-      if (documentNumber) {
-        const isValid = await storage.verifyAdminDocument(userEmail, documentNumber);
-        if (!isValid) {
-          console.log("[EMAIL RESET] Document verification failed");
-          return res.status(400).json({ error: "Documento no válido para este email" });
-        }
-      }
-
-      // Verify recovery email matches registered recovery email (if provided)
-      if (recoveryEmail || adminEmail) {
-        const isValidRecoveryEmail = await storage.verifyRecoveryEmail(userEmail, recoveryEmailToUse);
-        if (!isValidRecoveryEmail) {
-          console.log("[EMAIL RESET] Recovery email verification failed");
-          return res.status(400).json({ error: "Email de recuperación no coincide. Asegúrate de ingresar el email exacto que registraste." });
-        }
-      }
-
-      const admin = await storage.getAdminByEmail(userEmail);
-        
+      const admin = await storage.getAdminByDocument(documentNumber);
       if (!admin) {
-        return res.json({ message: "If email exists, code will be sent" });
+        return res.status(400).json({ error: "Documento no encontrado" });
+      }
+
+      // Verify recovery email matches registered recovery email
+      if (email !== admin.recoveryEmail) {
+        return res.status(400).json({ error: "Email de recuperación no coincide. Verifica el email que registraste." });
       }
 
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code, undefined, recoveryEmailToUse);
+      await storage.createResetToken(admin.id, code, undefined, email);
 
       const isDev = process.env.NODE_ENV === "development";
 
-      // Log code
-      console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
+      console.log(`[PASSWORD RESET] Code for ${admin.email}: ${code}`);
 
-      // In development, return code for testing
       if (isDev) {
         return res.json({ message: "Code sent to email", code });
       }
@@ -556,7 +524,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Verify document for password reset
+  // Verify document for password reset (simple - only check if document exists)
+  app.post("/api/password-reset/verify-document-simple", async (req, res) => {
+    try {
+      const { documentNumber } = req.body;
+      if (!documentNumber) {
+        return res.status(400).json({ error: "Document number required" });
+      }
+
+      const admin = await storage.getAdminByDocument(documentNumber);
+      if (!admin) {
+        return res.status(400).json({ error: "Documento no encontrado en el sistema" });
+      }
+
+      res.json({ message: "Document verified", adminId: admin.id });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to verify document" });
+    }
+  });
+
+  // Verify document for password reset (old endpoint - keep for compatibility)
   app.post("/api/password-reset/verify-document", async (req, res) => {
     try {
       const { email, documentNumber } = req.body;

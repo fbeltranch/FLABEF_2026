@@ -86,6 +86,7 @@ export interface IStorage {
   // Admin Users
   getAdminByEmail(email: string): Promise<AdminUser | undefined>;
   getAdminById(id: string): Promise<AdminUser | undefined>;
+  getAdminByDocument(documentNumber: string): Promise<AdminUser | undefined>;
   createAdmin(admin: InsertAdminUser & { createdBy?: string }): Promise<AdminUser>;
   updateAdmin(id: string, admin: UpdateAdminUser): Promise<AdminUser>;
   deleteAdmin(id: string): Promise<void>;
@@ -312,6 +313,11 @@ export class DatabaseStorage implements IStorage {
 
   async getAdminById(id: string): Promise<AdminUser | undefined> {
     const result = await db.select().from(adminUsers).where(eq(adminUsers.id, id));
+    return result[0];
+  }
+
+  async getAdminByDocument(documentNumber: string): Promise<AdminUser | undefined> {
+    const result = await db.select().from(adminUsers).where(eq(adminUsers.documentNumber, documentNumber));
     return result[0];
   }
 
