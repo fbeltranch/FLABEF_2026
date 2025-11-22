@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingCart, Search, Filter, Star, Check, Package } from "lucide-react";
+import { ShoppingCart, Search, Filter, Star, Check, Package, Facebook, Instagram, MessageCircle } from "lucide-react";
+import { SiTiktok } from "react-icons/si";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Product, CartItem } from "@shared/schema";
@@ -297,18 +298,23 @@ function Footer({ section }: { section: "tech" | "it_services" | "food" }) {
             <h4 className="font-semibold mb-4">Síguenos</h4>
             <div className="flex gap-4">
               {socialLinks.facebook && (
-                <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition">
-                  f
+                <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition" title="Facebook">
+                  <Facebook className="h-5 w-5" />
                 </a>
               )}
               {socialLinks.instagram && (
-                <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition">
-                  📷
+                <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 transition" title="Instagram">
+                  <Instagram className="h-5 w-5" />
+                </a>
+              )}
+              {socialLinks.tiktok && (
+                <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="text-black dark:text-white hover:opacity-70 transition" title="TikTok">
+                  <SiTiktok className="h-5 w-5" />
                 </a>
               )}
               {socialLinks.whatsapp && (
-                <a href={socialLinks.whatsapp} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition">
-                  💬
+                <a href={socialLinks.whatsapp} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-700 transition" title="WhatsApp">
+                  <MessageCircle className="h-5 w-5" />
                 </a>
               )}
             </div>

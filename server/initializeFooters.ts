@@ -22,6 +22,7 @@ export async function initializeFooters() {
         socialLinks: {
           facebook: "https://facebook.com/flabef",
           instagram: "https://instagram.com/flabef",
+          tiktok: "https://tiktok.com/@flabef",
           whatsapp: "https://wa.me/51925330577"
         }
       },
@@ -35,6 +36,7 @@ export async function initializeFooters() {
         socialLinks: {
           facebook: "https://facebook.com/flabef",
           instagram: "https://instagram.com/flabef",
+          tiktok: "https://tiktok.com/@flabef",
           whatsapp: "https://wa.me/51925330577"
         }
       },
@@ -48,6 +50,7 @@ export async function initializeFooters() {
         socialLinks: {
           facebook: "https://facebook.com/flabef",
           instagram: "https://instagram.com/flabef",
+          tiktok: "https://tiktok.com/@flabef",
           whatsapp: "https://wa.me/51925330577"
         }
       }

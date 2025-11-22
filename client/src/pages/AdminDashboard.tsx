@@ -726,6 +726,7 @@ function FootersTab() {
     email: "",
     facebook: "",
     instagram: "",
+    tiktok: "",
     whatsapp: "",
   });
   const { toast } = useToast();
@@ -745,6 +746,7 @@ function FootersTab() {
         socialLinks: {
           facebook: formData.facebook,
           instagram: formData.instagram,
+          tiktok: formData.tiktok,
           whatsapp: formData.whatsapp,
         },
       });
@@ -767,6 +769,7 @@ function FootersTab() {
       email: footer.email,
       facebook: socialLinks.facebook || "",
       instagram: socialLinks.instagram || "",
+      tiktok: socialLinks.tiktok || "",
       whatsapp: socialLinks.whatsapp || "",
     });
   };
@@ -877,6 +880,14 @@ function FootersTab() {
                     value={formData.instagram}
                     onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                     placeholder="https://instagram.com/..."
+                  />
+                </div>
+                <div>
+                  <Label>TikTok URL</Label>
+                  <Input
+                    value={formData.tiktok}
+                    onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
+                    placeholder="https://tiktok.com/@..."
                   />
                 </div>
                 <div>

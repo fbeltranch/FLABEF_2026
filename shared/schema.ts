@@ -142,7 +142,7 @@ export const footers = pgTable("footers", {
   address: text("address").notNull(),
   phone: text("phone").notNull(),
   email: text("email").notNull(),
-  socialLinks: jsonb("social_links").default({}), // {facebook: "", instagram: "", etc}
+  socialLinks: jsonb("social_links").default({}), // {facebook: "", instagram: "", tiktok: "", whatsapp: ""}
 });
 
 export const insertFooterSchema = createInsertSchema(footers).omit({
