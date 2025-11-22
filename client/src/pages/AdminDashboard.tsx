@@ -38,7 +38,6 @@ export default function AdminDashboard() {
     price: "",
     category: "",
     image: "",
-    featured: false,
     inStock: true,
   });
   const { toast } = useToast();
@@ -92,7 +91,6 @@ export default function AdminDashboard() {
       price: "",
       category: "",
       image: "",
-      featured: false,
       inStock: true,
     });
   };
@@ -105,7 +103,6 @@ export default function AdminDashboard() {
       price: product.price,
       category: product.category,
       image: product.image,
-      featured: product.featured,
       inStock: product.inStock,
     });
   };
@@ -177,13 +174,6 @@ export default function AdminDashboard() {
                 onChange={(e) => setFormData({ ...formData, image: e.target.value })}
               />
               <div className="flex items-center justify-between">
-                <Label>Destacado</Label>
-                <Switch
-                  checked={formData.featured}
-                  onCheckedChange={(val) => setFormData({ ...formData, featured: val })}
-                />
-              </div>
-              <div className="flex items-center justify-between">
                 <Label>En Stock</Label>
                 <Switch
                   checked={formData.inStock}
@@ -222,12 +212,9 @@ export default function AdminDashboard() {
         {products.map((product) => (
           <Card key={product.id} className="flex flex-col">
             <CardHeader>
-              <div className="flex justify-between items-start gap-2">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{product.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
-                </div>
-                {product.featured && <Badge>Oferta</Badge>}
+              <div className="flex-1">
+                <CardTitle className="text-lg">{product.name}</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
               </div>
             </CardHeader>
             <CardContent className="flex-1">

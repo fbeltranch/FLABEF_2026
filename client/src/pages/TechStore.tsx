@@ -77,8 +77,6 @@ export default function TechStore() {
     return matchesCategory && matchesSearch;
   });
 
-  const featuredProducts = products?.filter(p => p.featured).slice(0, 4);
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -147,54 +145,6 @@ export default function TechStore() {
         </div>
       </section>
 
-      {/* Featured Products - Ofertas del Día */}
-      {featuredProducts && featuredProducts.length > 0 && (
-        <section className="py-16 bg-gradient-to-b from-background to-muted/20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <Badge className="mb-4 bg-destructive text-destructive-foreground">Ofertas del Día</Badge>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Productos Destacados</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Las mejores ofertas en ropa, accesorios y tecnología seleccionados especialmente para ti
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <Card key={product.id} className="overflow-hidden hover-elevate group" data-testid={`card-featured-${product.id}`}>
-                  <div className="relative aspect-square overflow-hidden bg-muted">
-                    <Badge className="absolute top-3 right-3 z-10 bg-destructive text-destructive-foreground">
-                      Oferta
-                    </Badge>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardHeader className="pb-3">
-                    <h3 className="font-semibold line-clamp-2">{product.name}</h3>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <p className="text-2xl font-bold text-primary">S/ {parseFloat(product.price).toFixed(2)}</p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      className="w-full gap-2" 
-                      onClick={() => addToCartMutation.mutate(product)}
-                      disabled={!product.inStock || addToCartMutation.isPending}
-                      data-testid={`button-add-cart-${product.id}`}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      {product.inStock ? "Agregar al Carrito" : "Agotado"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Main Catalog */}
       <section id="catalog" className="py-16">
