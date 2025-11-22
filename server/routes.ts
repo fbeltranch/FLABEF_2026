@@ -482,30 +482,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/password-reset/request-email", async (req, res) => {
     try {
       const { email, adminEmail, documentNumber } = req.body;
-      const emailToUse = email || adminEmail; // Support both field names
       
-      if (!emailToUse) {
-        return res.status(400).json({ error: "Email required" });
+      if (!email || !adminEmail) {
+        return res.status(400).json({ error: "Email and admin email required" });
       }
 
-      // Verify document first - check adminEmail if provided
-      if (documentNumber && adminEmail) {
+      // Verify document first
+      if (documentNumber) {
         const isValid = await storage.verifyAdminDocument(adminEmail, documentNumber);
         if (!isValid) {
           return res.status(400).json({ error: "Invalid email or document number" });
         }
       }
 
-      const admin = adminEmail 
-        ? await storage.getAdminByEmail(adminEmail)
-        : await storage.getAdminByEmail(emailToUse);
+      // Verify recovery email matches registered recovery email
+      const isValidRecoveryEmail = await storage.verifyRecoveryEmail(adminEmail, email);
+      if (!isValidRecoveryEmail) {
+        return res.status(400).json({ error: "Email de recuperación no coincide" });
+      }
+
+      const admin = await storage.getAdminByEmail(adminEmail);
         
       if (!admin) {
         return res.json({ message: "If email exists, code will be sent" });
       }
 
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code, undefined, emailToUse);
+      await storage.createResetToken(admin.id, code, undefined, email);
 
       const isDev = process.env.NODE_ENV === "development";
 

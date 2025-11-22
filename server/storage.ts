@@ -99,6 +99,7 @@ export interface IStorage {
   
   // Document Verification
   verifyAdminDocument(email: string, documentNumber: string): Promise<boolean>;
+  verifyRecoveryEmail(adminEmail: string, recoveryEmail: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -324,6 +325,7 @@ export class DatabaseStorage implements IStorage {
         fullName: adminData.fullName,
         documentType: adminData.documentType,
         documentNumber: adminData.documentNumber,
+        recoveryEmail: adminData.recoveryEmail,
         createdBy: adminData.createdBy,
       })
       .returning();
@@ -394,6 +396,17 @@ export class DatabaseStorage implements IStorage {
       .where(and(
         eq(adminUsers.email, email),
         eq(adminUsers.documentNumber, documentNumber),
+      ));
+    return admin.length > 0;
+  }
+
+  // ===== Recovery Email Verification =====
+  async verifyRecoveryEmail(adminEmail: string, recoveryEmail: string): Promise<boolean> {
+    const admin = await db.select()
+      .from(adminUsers)
+      .where(and(
+        eq(adminUsers.email, adminEmail),
+        eq(adminUsers.recoveryEmail, recoveryEmail),
       ));
     return admin.length > 0;
   }

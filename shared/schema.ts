@@ -188,6 +188,7 @@ export const adminUsers = pgTable("admin_users", {
   fullName: varchar("full_name"),
   documentType: varchar("document_type").notNull(), // "DNI", "Pasaporte", "Carnet de Extranjería", "Otro"
   documentNumber: varchar("document_number").notNull(), // DNI=8 chars, others=more
+  recoveryEmail: varchar("recovery_email").notNull(), // Email para recuperación de contraseña
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: varchar("created_by"), // ID of admin who created this user
@@ -201,6 +202,7 @@ export const insertAdminUserSchema = z.object({
   fullName: z.string().optional(),
   documentType: z.enum(["DNI", "Pasaporte", "Carnet de Extranjería", "Otro"]),
   documentNumber: z.string(),
+  recoveryEmail: z.string().email(),
 }).refine(
   (data) => {
     if (data.documentType === "DNI") {

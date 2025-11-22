@@ -14,6 +14,7 @@ import {
 
 export default function AdminRegister() {
   const [email, setEmail] = useState("");
+  const [recoveryEmail, setRecoveryEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -26,7 +27,7 @@ export default function AdminRegister() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password || !confirmPassword || !fullName || !documentType || !documentNumber) {
+    if (!email || !recoveryEmail || !password || !confirmPassword || !fullName || !documentType || !documentNumber) {
       toast({
         title: "Error",
         description: "Por favor completa todos los campos",
@@ -70,6 +71,7 @@ export default function AdminRegister() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
+          recoveryEmail,
           password,
           role,
           fullName,
@@ -131,7 +133,7 @@ export default function AdminRegister() {
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email (Login)</Label>
               <Input
                 id="email"
                 type="email"
@@ -142,6 +144,23 @@ export default function AdminRegister() {
                 required
                 data-testid="input-email"
               />
+            </div>
+
+            <div>
+              <Label htmlFor="recoveryEmail">Email de Recuperación</Label>
+              <Input
+                id="recoveryEmail"
+                type="email"
+                value={recoveryEmail}
+                onChange={(e) => setRecoveryEmail(e.target.value)}
+                placeholder="recuperacion@flabef.com"
+                disabled={isLoading}
+                required
+                data-testid="input-recovery-email"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Email que usarás para recuperar tu contraseña
+              </p>
             </div>
 
             <div>

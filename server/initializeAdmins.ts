@@ -19,6 +19,7 @@ export async function initializeAdmins() {
       fullName: "Super Admin",
       documentType: "DNI",
       documentNumber: "12345678",
+      recoveryEmail: "admin@flabef.com",
     });
 
     console.log("[init] Super admin created: admin@flabef.com / admin123");
