@@ -932,7 +932,7 @@ function FootersTab() {
 function AdminsTab() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<AdminUser | null>(null);
-  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", role: "editor" });
+  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", role: "editor", documentType: "DNI", documentNumber: "", recoveryEmail: "" });
   const { toast } = useToast();
 
   const { data: admins = [], isLoading } = useQuery({
@@ -940,12 +940,12 @@ function AdminsTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string; fullName?: string; role: string }) => {
+    mutationFn: async (data: { email: string; password: string; fullName?: string; role: string; documentType: string; documentNumber: string; recoveryEmail: string }) => {
       return apiRequest("POST", "/api/admins", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admins"] });
-      setFormData({ email: "", password: "", fullName: "", role: "editor" });
+      setFormData({ email: "", password: "", fullName: "", role: "editor", documentType: "DNI", documentNumber: "", recoveryEmail: "" });
       setIsAddOpen(false);
       toast({ title: "Admin creado exitosamente" });
     },
@@ -961,7 +961,7 @@ function AdminsTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admins"] });
-      setFormData({ email: "", password: "", fullName: "", role: "editor" });
+      setFormData({ email: "", password: "", fullName: "", role: "editor", documentType: "DNI", documentNumber: "", recoveryEmail: "" });
       setEditingAdmin(null);
       toast({ title: "Admin actualizado exitosamente" });
     },
@@ -989,6 +989,18 @@ function AdminsTab() {
       return;
     }
 
+    // For creating new admin, document info and recovery email are required
+    if (!editingAdmin) {
+      if (!formData.documentNumber || !formData.recoveryEmail) {
+        toast({ title: "Por favor completa número de documento y email de recuperación", variant: "destructive" });
+        return;
+      }
+      if (formData.documentType === "DNI" && formData.documentNumber.length !== 8) {
+        toast({ title: "El DNI debe tener exactamente 8 caracteres", variant: "destructive" });
+        return;
+      }
+    }
+
     if (editingAdmin) {
       // When editing, password is optional (can be empty string to skip changing it)
       updateMutation.mutate({ 
@@ -1004,7 +1016,7 @@ function AdminsTab() {
   return (
     <div className="space-y-6">
       <div className="flex gap-2">
-        <Button onClick={() => { setIsAddOpen(true); setEditingAdmin(null); setFormData({ email: "", password: "", fullName: "", role: "editor" }); }}>
+        <Button onClick={() => { setIsAddOpen(true); setEditingAdmin(null); setFormData({ email: "", password: "", fullName: "", role: "editor", documentType: "DNI", documentNumber: "", recoveryEmail: "" }); }}>
           <Plus className="w-4 h-4 mr-2" />
           Nuevo Admin
         </Button>
@@ -1034,6 +1046,49 @@ function AdminsTab() {
             <div>
               <Label>Nombre Completo</Label>
               <Input value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} />
+            </div>
+            <div>
+              <Label>Email de Recuperación</Label>
+              <input
+                type="text"
+                value={formData.recoveryEmail}
+                onChange={(e) => setFormData({ ...formData, recoveryEmail: e.target.value })}
+                placeholder="recuperacion@flabef.com"
+                disabled={!!editingAdmin}
+                required
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Email que se usará para recuperar la contraseña
+              </p>
+            </div>
+            <div>
+              <Label>Tipo de Documento</Label>
+              <Select value={formData.documentType} onValueChange={(value) => setFormData({ ...formData, documentType: value })} disabled={!!editingAdmin}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DNI">DNI</SelectItem>
+                  <SelectItem value="Pasaporte">Pasaporte</SelectItem>
+                  <SelectItem value="Carnet de Extranjería">Carnet de Extranjería</SelectItem>
+                  <SelectItem value="Otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Número de Documento</Label>
+              <Input 
+                value={formData.documentNumber} 
+                onChange={(e) => setFormData({ ...formData, documentNumber: e.target.value })} 
+                placeholder={formData.documentType === "DNI" ? "12345678" : "ABC123456"}
+                disabled={!!editingAdmin}
+                maxLength={formData.documentType === "DNI" ? 8 : 20}
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.documentType === "DNI" ? "8 caracteres exactos" : "Número según documento"}
+              </p>
             </div>
             <div>
               <Label>Rol</Label>
@@ -1076,7 +1131,7 @@ function AdminsTab() {
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => {
                       setEditingAdmin(admin);
-                      setFormData({ email: admin.email, password: "", fullName: admin.fullName || "", role: admin.role });
+                      setFormData({ email: admin.email, password: "", fullName: admin.fullName || "", role: admin.role, documentType: "DNI", documentNumber: "", recoveryEmail: "" });
                       setIsAddOpen(true);
                     }}>
                       <Edit2 className="w-4 h-4" />
