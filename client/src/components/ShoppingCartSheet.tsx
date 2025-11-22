@@ -47,7 +47,7 @@ export function ShoppingCartSheet({
             <ShoppingBag className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">Tu carrito está vacío</h3>
             <p className="text-muted-foreground text-sm">
-              Agrega productos de nuestro catálogo tecnológico
+              Agrega productos de nuestro catálogo de ropa y accesorios
             </p>
           </div>
         ) : (

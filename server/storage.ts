@@ -1,6 +1,6 @@
 import { 
-  type TechProduct, 
-  type InsertTechProduct,
+  type Product, 
+  type InsertProduct,
   type ITService,
   type InsertITService,
   type FoodItem,
@@ -13,12 +13,12 @@ import {
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // Tech Products
-  getTechProducts(category?: string): Promise<TechProduct[]>;
-  getTechProduct(id: string): Promise<TechProduct | undefined>;
-  createTechProduct(product: InsertTechProduct): Promise<TechProduct>;
-  updateTechProduct(id: string, product: Partial<InsertTechProduct>): Promise<TechProduct | undefined>;
-  deleteTechProduct(id: string): Promise<boolean>;
+  // Products
+  getProducts(category?: string): Promise<Product[]>;
+  getProduct(id: string): Promise<Product | undefined>;
+  createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
+  deleteProduct(id: string): Promise<boolean>;
   
   // IT Services
   getITServices(): Promise<ITService[]>;
@@ -47,14 +47,14 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private techProducts: Map<string, TechProduct>;
+  private products: Map<string, Product>;
   private itServices: Map<string, ITService>;
   private foodItems: Map<string, FoodItem>;
   private cartItems: Map<string, CartItem>;
   private contactRequests: Map<string, ContactRequest>;
 
   constructor() {
-    this.techProducts = new Map();
+    this.products = new Map();
     this.itServices = new Map();
     this.foodItems = new Map();
     this.cartItems = new Map();
@@ -64,83 +64,83 @@ export class MemStorage implements IStorage {
   }
 
   private seedData() {
-    // Seed Tech Products
-    const techProductsData: InsertTechProduct[] = [
+    // Seed Products
+    const productsData: InsertProduct[] = [
       {
-        name: "Laptop Gaming ROG Strix G16",
-        description: "Intel Core i7 13th Gen, RTX 4060, 16GB RAM, 512GB SSD, Pantalla 165Hz",
-        price: "5499.00",
-        category: "laptops",
+        name: "Camiseta Premium Algodón Puro",
+        description: "Camiseta 100% algodón orgánico, suave y cómoda, disponible en múltiples colores",
+        price: "49.99",
+        category: "camisetas",
         image: "/api/placeholder/400/300",
         featured: true,
         inStock: true,
       },
       {
-        name: "PC Gamer RTX 4070 Ti",
-        description: "Intel i7-13700K, RTX 4070 Ti, 32GB DDR5, 1TB NVMe, Gabinete RGB",
-        price: "7999.00",
-        category: "pcs",
+        name: "Mochila Urban Backpack XL",
+        description: "Mochila espaciosa con múltiples compartimentos, ideal para viajes y trabajo",
+        price: "129.99",
+        category: "mochilas",
         image: "/api/placeholder/400/300",
         featured: true,
         inStock: true,
       },
       {
-        name: "Monitor LG UltraGear 27\" 144Hz",
-        description: "IPS 1ms, QHD 2560x1440, HDR10, FreeSync Premium",
-        price: "1299.00",
-        category: "monitors",
+        name: "Pantalón Jeans Clásico",
+        description: "Pantalón jeans de corte recto, tela resistente y cómoda para el día a día",
+        price: "89.99",
+        category: "pantalones",
         image: "/api/placeholder/400/300",
         featured: true,
         inStock: true,
       },
       {
-        name: "Teclado Mecánico Logitech G Pro X",
-        description: "Switch GX Blue, RGB, TKL, Cable extraíble, Tournament Ready",
-        price: "549.00",
-        category: "peripherals",
+        name: "Zapatos Deportivos Running",
+        description: "Zapatillas deportivas ligeras con tecnología de amortiguación superior",
+        price: "159.99",
+        category: "zapatos",
         image: "/api/placeholder/400/300",
         featured: true,
         inStock: true,
       },
       {
-        name: "Laptop HP ProBook 450 G9",
-        description: "Intel Core i5 12th Gen, 8GB RAM, 256GB SSD, Pantalla 15.6\" Full HD",
-        price: "2799.00",
-        category: "laptops",
+        name: "Vestido Casual Elegante",
+        description: "Vestido versátil perfecto para eventos casuales y trabajo, tela suave",
+        price: "119.99",
+        category: "vestidos",
         image: "/api/placeholder/400/300",
         featured: false,
         inStock: true,
       },
       {
-        name: "SSD NVMe Samsung 980 Pro 1TB",
-        description: "PCIe 4.0, Lectura 7000 MB/s, Ideal para gaming y edición",
-        price: "449.00",
-        category: "components",
+        name: "Cinturón de Cuero Auténtico",
+        description: "Cinturón de cuero premium con hebilla clásica, durable y elegante",
+        price: "59.99",
+        category: "accesorios",
         image: "/api/placeholder/400/300",
         featured: false,
         inStock: true,
       },
       {
-        name: "Mouse Logitech G502 HERO",
-        description: "25,600 DPI, 11 botones programables, RGB Lightsync",
-        price: "249.00",
-        category: "peripherals",
+        name: "Gorra Deportiva Ajustable",
+        description: "Gorra de algodón con cierre ajustable, protección UV",
+        price: "34.99",
+        category: "accesorios",
         image: "/api/placeholder/400/300",
         featured: false,
         inStock: true,
       },
       {
-        name: "Audífonos HyperX Cloud II",
-        description: "7.1 Surround, Micrófono cancelación ruido, Almohadillas memory foam",
-        price: "399.00",
-        category: "peripherals",
+        name: "Bufanda Lana Merino",
+        description: "Bufanda de lana merino suave, cálida y transpirable, perfecta para invierno",
+        price: "79.99",
+        category: "accesorios",
         image: "/api/placeholder/400/300",
         featured: false,
         inStock: true,
       },
     ];
 
-    techProductsData.forEach(product => this.createTechProduct(product));
+    productsData.forEach(product => this.createProduct(product));
 
     // Seed IT Services
     const itServicesData: InsertITService[] = [
@@ -275,42 +275,42 @@ export class MemStorage implements IStorage {
     foodItemsData.forEach(item => this.createFoodItem(item));
   }
 
-  // Tech Products
-  async getTechProducts(category?: string): Promise<TechProduct[]> {
-    const products = Array.from(this.techProducts.values());
+  // Products
+  async getProducts(category?: string): Promise<Product[]> {
+    const productsList = Array.from(this.products.values());
     if (category && category !== "all") {
-      return products.filter(p => p.category === category);
+      return productsList.filter(p => p.category === category);
     }
-    return products;
+    return productsList;
   }
 
-  async getTechProduct(id: string): Promise<TechProduct | undefined> {
-    return this.techProducts.get(id);
+  async getProduct(id: string): Promise<Product | undefined> {
+    return this.products.get(id);
   }
 
-  async createTechProduct(insertProduct: InsertTechProduct): Promise<TechProduct> {
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
     const id = randomUUID();
-    const product: TechProduct = { ...insertProduct, id };
-    this.techProducts.set(id, product);
+    const product: Product = { ...insertProduct, id };
+    this.products.set(id, product);
     return product;
   }
 
-  async updateTechProduct(id: string, updates: Partial<InsertTechProduct>): Promise<TechProduct | undefined> {
-    const product = this.techProducts.get(id);
+  async updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product | undefined> {
+    const product = this.products.get(id);
     if (!product) return undefined;
     
     // Filter out undefined values to prevent accidental field clearing
     const filteredUpdates = Object.fromEntries(
       Object.entries(updates).filter(([_, value]) => value !== undefined)
-    ) as Partial<InsertTechProduct>;
+    ) as Partial<InsertProduct>;
     
     const updatedProduct = { ...product, ...filteredUpdates };
-    this.techProducts.set(id, updatedProduct);
+    this.products.set(id, updatedProduct);
     return updatedProduct;
   }
 
-  async deleteTechProduct(id: string): Promise<boolean> {
-    return this.techProducts.delete(id);
+  async deleteProduct(id: string): Promise<boolean> {
+    return this.products.delete(id);
   }
 
   // IT Services

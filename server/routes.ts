@@ -2,8 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
-  insertTechProductSchema,
-  updateTechProductSchema,
+  insertProductSchema,
+  updateProductSchema,
   insertITServiceSchema,
   updateITServiceSchema,
   insertFoodItemSchema,
@@ -13,20 +13,20 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // ============= TECH PRODUCTS =============
-  app.get("/api/tech-products", async (req, res) => {
+  // ============= PRODUCTS =============
+  app.get("/api/products", async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
-      const products = await storage.getTechProducts(category);
+      const products = await storage.getProducts(category);
       res.json(products);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch tech products" });
+      res.status(500).json({ error: "Failed to fetch products" });
     }
   });
 
-  app.get("/api/tech-products/:id", async (req, res) => {
+  app.get("/api/products/:id", async (req, res) => {
     try {
-      const product = await storage.getTechProduct(req.params.id);
+      const product = await storage.getProduct(req.params.id);
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
@@ -36,20 +36,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/tech-products", async (req, res) => {
+  app.post("/api/products", async (req, res) => {
     try {
-      const validated = insertTechProductSchema.parse(req.body);
-      const product = await storage.createTechProduct(validated);
+      const validated = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(validated);
       res.status(201).json(product);
     } catch (error) {
       res.status(400).json({ error: "Invalid product data" });
     }
   });
 
-  app.put("/api/tech-products/:id", async (req, res) => {
+  app.put("/api/products/:id", async (req, res) => {
     try {
-      const validated = updateTechProductSchema.parse(req.body);
-      const product = await storage.updateTechProduct(req.params.id, validated);
+      const validated = updateProductSchema.parse(req.body);
+      const product = await storage.updateProduct(req.params.id, validated);
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
@@ -59,9 +59,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/tech-products/:id", async (req, res) => {
+  app.delete("/api/products/:id", async (req, res) => {
     try {
-      const success = await storage.deleteTechProduct(req.params.id);
+      const success = await storage.deleteProduct(req.params.id);
       if (!success) {
         return res.status(404).json({ error: "Product not found" });
       }

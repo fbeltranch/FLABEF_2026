@@ -8,18 +8,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingCart, Search, Filter, Star, Check, Package } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { TechProduct, CartItem } from "@shared/schema";
+import type { Product, CartItem } from "@shared/schema";
 import heroImage from "@assets/generated_images/tech_store_hero_background.png";
 
 const categories = [
   { id: "all", label: "Todos" },
-  { id: "laptops", label: "Laptops" },
-  { id: "pcs", label: "PCs Armadas" },
-  { id: "components", label: "Componentes" },
-  { id: "peripherals", label: "Periféricos" },
-  { id: "monitors", label: "Monitores" },
-  { id: "smartphones", label: "Smartphones" },
-  { id: "accessories", label: "Accesorios" },
+  { id: "camisetas", label: "Camisetas" },
+  { id: "pantalones", label: "Pantalones" },
+  { id: "mochilas", label: "Mochilas" },
+  { id: "zapatos", label: "Zapatos" },
+  { id: "vestidos", label: "Vestidos" },
+  { id: "accesorios", label: "Accesorios" },
 ];
 
 export default function TechStore() {
@@ -27,8 +26,8 @@ export default function TechStore() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
-  const { data: products, isLoading } = useQuery<TechProduct[]>({
-    queryKey: ["/api/tech-products"],
+  const { data: products, isLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
   });
 
   const { data: cartItems } = useQuery<CartItem[]>({
@@ -36,7 +35,7 @@ export default function TechStore() {
   });
 
   const addToCartMutation = useMutation({
-    mutationFn: async (product: TechProduct) => {
+    mutationFn: async (product: Product) => {
       const existingItem = cartItems?.find(item => item.productId === product.id);
       
       if (existingItem) {
@@ -87,13 +86,13 @@ export default function TechStore() {
         
         <div className="relative z-10 max-w-4xl mx-auto px-6">
           <Badge className="mb-6 bg-primary/20 text-primary-foreground border-primary/30" data-testid="badge-hero">
-            FLABEF Tech Store
+            FLABEF Fashion Store
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-            Tecnología que impulsa tu productividad
+            Ropa y accesorios de calidad
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-200">
-            Equipos premium con garantía oficial y asesoría profesional
+            Colecciones exclusivas con estilo y comodidad para tu día a día
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -147,7 +146,7 @@ export default function TechStore() {
               <Badge className="mb-4 bg-destructive text-destructive-foreground">Ofertas del Día</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Productos Destacados</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Las mejores ofertas en tecnología premium seleccionadas especialmente para ti
+                Las mejores ofertas en ropa y accesorios premium seleccionados especialmente para ti
               </p>
             </div>
             
@@ -194,7 +193,7 @@ export default function TechStore() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Catálogo Completo</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Eleva tu setup al siguiente nivel con nuestra selección de equipos premium
+              Descubre nuestras colecciones de ropa y accesorios para todos los estilos y ocasiones
             </p>
           </div>
 

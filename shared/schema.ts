@@ -3,30 +3,30 @@ import { pgTable, text, varchar, integer, decimal, boolean } from "drizzle-orm/p
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// ============= TECH STORE PRODUCTS =============
-export const techProducts = pgTable("tech_products", {
+// ============= CLOTHING STORE PRODUCTS =============
+export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  category: text("category").notNull(), // laptops, pcs, components, peripherals, monitors, smartphones, accessories
+  category: text("category").notNull(), // camisetas, pantalones, mochilas, zapatos, vestidos, accesorios
   image: text("image").notNull(),
   featured: boolean("featured").notNull().default(false),
   inStock: boolean("in_stock").notNull().default(true),
 });
 
-export const insertTechProductSchema = createInsertSchema(techProducts).omit({
+export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
 });
 
-export const updateTechProductSchema = insertTechProductSchema.partial().refine(
+export const updateProductSchema = insertProductSchema.partial().refine(
   (data) => Object.keys(data).length > 0,
   { message: "At least one field must be provided for update" }
 );
 
-export type InsertTechProduct = z.infer<typeof insertTechProductSchema>;
-export type UpdateTechProduct = z.infer<typeof updateTechProductSchema>;
-export type TechProduct = typeof techProducts.$inferSelect;
+export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type UpdateProduct = z.infer<typeof updateProductSchema>;
+export type Product = typeof products.$inferSelect;
 
 // ============= IT SERVICES =============
 export const itServices = pgTable("it_services", {
