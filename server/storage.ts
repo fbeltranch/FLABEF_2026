@@ -20,6 +20,10 @@ import {
   type InsertAdminUser,
   type UpdateAdminUser,
   type PasswordResetToken,
+  type ProductCategory,
+  type InsertProductCategory,
+  type FoodCategory,
+  type InsertFoodCategory,
   products,
   itServices,
   foodItems,
@@ -30,6 +34,8 @@ import {
   siteSettings,
   adminUsers,
   passwordResetTokens,
+  productCategories,
+  foodCategories,
 } from "@shared/schema";
 import { and } from "drizzle-orm";
 import { db } from "./db";
@@ -101,6 +107,16 @@ export interface IStorage {
   // Document Verification
   verifyAdminDocument(email: string, documentNumber: string): Promise<boolean>;
   verifyRecoveryEmail(adminEmail: string, recoveryEmail: string): Promise<boolean>;
+
+  // Product Categories
+  getProductCategories(): Promise<ProductCategory[]>;
+  createProductCategory(category: InsertProductCategory): Promise<ProductCategory>;
+  deleteProductCategory(id: string): Promise<boolean>;
+
+  // Food Categories
+  getFoodCategories(): Promise<FoodCategory[]>;
+  createFoodCategory(category: InsertFoodCategory): Promise<FoodCategory>;
+  deleteFoodCategory(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -415,6 +431,36 @@ export class DatabaseStorage implements IStorage {
         eq(adminUsers.recoveryEmail, recoveryEmail),
       ));
     return admin.length > 0;
+  }
+
+  // ===== Product Categories =====
+  async getProductCategories(): Promise<ProductCategory[]> {
+    return db.select().from(productCategories);
+  }
+
+  async createProductCategory(category: InsertProductCategory): Promise<ProductCategory> {
+    const result = await db.insert(productCategories).values(category).returning();
+    return result[0];
+  }
+
+  async deleteProductCategory(id: string): Promise<boolean> {
+    const result = await db.delete(productCategories).where(eq(productCategories.id, id));
+    return result.rowCount > 0;
+  }
+
+  // ===== Food Categories =====
+  async getFoodCategories(): Promise<FoodCategory[]> {
+    return db.select().from(foodCategories);
+  }
+
+  async createFoodCategory(category: InsertFoodCategory): Promise<FoodCategory> {
+    const result = await db.insert(foodCategories).values(category).returning();
+    return result[0];
+  }
+
+  async deleteFoodCategory(id: string): Promise<boolean> {
+    const result = await db.delete(foodCategories).where(eq(foodCategories.id, id));
+    return result.rowCount > 0;
   }
 }
 

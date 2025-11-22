@@ -590,6 +590,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============= PRODUCT CATEGORIES =============
+  app.get("/api/product-categories", async (req, res) => {
+    try {
+      const categories = await storage.getProductCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/product-categories", isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (!name) {
+        return res.status(400).json({ error: "Category name is required" });
+      }
+      const category = await storage.createProductCategory({ name });
+      res.status(201).json(category);
+    } catch (error: any) {
+      if (error.message?.includes("unique")) {
+        return res.status(400).json({ error: "Category already exists" });
+      }
+      res.status(400).json({ error: "Failed to create category" });
+    }
+  });
+
+  app.delete("/api/product-categories/:id", isAuthenticated, async (req, res) => {
+    try {
+      const success = await storage.deleteProductCategory(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete category" });
+    }
+  });
+
+  // ============= FOOD CATEGORIES =============
+  app.get("/api/food-categories", async (req, res) => {
+    try {
+      const categories = await storage.getFoodCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/food-categories", isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (!name) {
+        return res.status(400).json({ error: "Category name is required" });
+      }
+      const category = await storage.createFoodCategory({ name });
+      res.status(201).json(category);
+    } catch (error: any) {
+      if (error.message?.includes("unique")) {
+        return res.status(400).json({ error: "Category already exists" });
+      }
+      res.status(400).json({ error: "Failed to create category" });
+    }
+  });
+
+  app.delete("/api/food-categories/:id", isAuthenticated, async (req, res) => {
+    try {
+      const success = await storage.deleteFoodCategory(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete category" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

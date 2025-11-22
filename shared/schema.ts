@@ -251,6 +251,36 @@ export const insertPasswordResetSchema = z.object({
 
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 
+// ============= PRODUCT CATEGORIES (Editable product categories) =============
+export const productCategories = pgTable("product_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertProductCategorySchema = createInsertSchema(productCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type ProductCategory = typeof productCategories.$inferSelect;
+export type InsertProductCategory = z.infer<typeof insertProductCategorySchema>;
+
+// ============= FOOD CATEGORIES (Editable food categories) =============
+export const foodCategories = pgTable("food_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertFoodCategorySchema = createInsertSchema(foodCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type FoodCategory = typeof foodCategories.$inferSelect;
+export type InsertFoodCategory = z.infer<typeof insertFoodCategorySchema>;
+
 // ============= PRODUCT_OWNER (Optional - for future owner tracking) =============
 // This tracks which admin user created or owns a product
 export const productOwners = pgTable("product_owners", {

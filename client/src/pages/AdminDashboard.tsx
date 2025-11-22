@@ -31,7 +31,6 @@ function ProductsTab() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newCategory, setNewCategory] = useState("");
   const [showNewCategory, setShowNewCategory] = useState(false);
-  const [categories, setCategories] = useState<string[]>(productCategories);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -44,6 +43,37 @@ function ProductsTab() {
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+  });
+
+  const { data: categoriesData = [] } = useQuery({
+    queryKey: ["/api/product-categories"],
+  });
+
+  const categories = categoriesData.map((cat: any) => cat.name);
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest("POST", "/api/product-categories", { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/product-categories"] });
+      setNewCategory("");
+      setShowNewCategory(false);
+      toast({ title: "Categoría agregada exitosamente" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "No se pudo crear la categoría", variant: "destructive" });
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (categoryId: string) => {
+      return apiRequest("DELETE", `/api/product-categories/${categoryId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/product-categories"] });
+      toast({ title: "Categoría eliminada" });
+    },
   });
 
   const createMutation = useMutation({
@@ -124,14 +154,12 @@ function ProductsTab() {
 
   const addCategory = () => {
     if (newCategory.trim() && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory("");
-      setShowNewCategory(false);
+      createCategoryMutation.mutate(newCategory);
     }
   };
 
-  const deleteCategory = (cat: string) => {
-    setCategories(categories.filter(c => c !== cat));
+  const deleteCategory = (catId: string) => {
+    deleteCategoryMutation.mutate(catId);
   };
 
   if (isLoading) return <div className="p-8">Cargando...</div>;
@@ -145,10 +173,10 @@ function ProductsTab() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2 mb-4">
-            {categories.map((cat) => (
-              <Badge key={cat} variant="secondary" className="flex items-center gap-2">
-                {cat}
-                <button onClick={() => deleteCategory(cat)} className="ml-1 hover:text-red-600">×</button>
+            {categoriesData.map((cat: any) => (
+              <Badge key={cat.id} variant="secondary" className="flex items-center gap-2">
+                {cat.name}
+                <button onClick={() => deleteCategory(cat.id)} className="ml-1 hover:text-red-600">×</button>
               </Badge>
             ))}
           </div>
@@ -475,7 +503,6 @@ function ITServicesTab() {
 function FoodTab() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingFood, setEditingFood] = useState<FoodItem | null>(null);
-  const [categories, setCategories] = useState<string[]>(foodCategories);
   const [newCategory, setNewCategory] = useState("");
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [formData, setFormData] = useState({
@@ -490,6 +517,37 @@ function FoodTab() {
 
   const { data: foods = [], isLoading } = useQuery<FoodItem[]>({
     queryKey: ["/api/food-items"],
+  });
+
+  const { data: categoriesData = [] } = useQuery({
+    queryKey: ["/api/food-categories"],
+  });
+
+  const categories = categoriesData.map((cat: any) => cat.name);
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return apiRequest("POST", "/api/food-categories", { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/food-categories"] });
+      setNewCategory("");
+      setShowNewCategory(false);
+      toast({ title: "Categoría agregada exitosamente" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "No se pudo crear la categoría", variant: "destructive" });
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (categoryId: string) => {
+      return apiRequest("DELETE", `/api/food-categories/${categoryId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/food-categories"] });
+      toast({ title: "Categoría eliminada" });
+    },
   });
 
   const createMutation = useMutation({
@@ -567,14 +625,12 @@ function FoodTab() {
 
   const addCategory = () => {
     if (newCategory.trim() && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory("");
-      setShowNewCategory(false);
+      createCategoryMutation.mutate(newCategory);
     }
   };
 
-  const deleteCategory = (cat: string) => {
-    setCategories(categories.filter(c => c !== cat));
+  const deleteCategory = (catId: string) => {
+    deleteCategoryMutation.mutate(catId);
   };
 
   if (isLoading) return <div className="p-8">Cargando...</div>;
@@ -588,10 +644,10 @@ function FoodTab() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2 mb-4">
-            {categories.map((cat) => (
-              <Badge key={cat} variant="secondary" className="flex items-center gap-2">
-                {cat}
-                <button onClick={() => deleteCategory(cat)} className="ml-1 hover:text-red-600">×</button>
+            {categoriesData.map((cat: any) => (
+              <Badge key={cat.id} variant="secondary" className="flex items-center gap-2">
+                {cat.name}
+                <button onClick={() => deleteCategory(cat.id)} className="ml-1 hover:text-red-600">×</button>
               </Badge>
             ))}
           </div>
