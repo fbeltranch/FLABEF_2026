@@ -9,6 +9,7 @@ import express, {
 
 import { registerRoutes } from "./routes";
 import { initializeProducts } from "./initializeProducts";
+import { initializeITServices, initializeFoodItems } from "./initializeSampleData";
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -70,8 +71,10 @@ export default async function runApp(
 ) {
   const server = await registerRoutes(app);
 
-  // Initialize sample products if database is empty
+  // Initialize sample data if databases are empty
   await initializeProducts();
+  await initializeITServices();
+  await initializeFoodItems();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
