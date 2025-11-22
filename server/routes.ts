@@ -481,34 +481,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Request password reset via email (Alternative)
   app.post("/api/password-reset/request-email", async (req, res) => {
     try {
-      const { email, adminEmail, documentNumber } = req.body;
+      const { email, adminEmail, documentNumber, recoveryEmail } = req.body;
       
-      if (!email || !adminEmail) {
-        return res.status(400).json({ error: "Email and admin email required" });
+      // email can be either admin email (from initial step) or recovery email (from method selection)
+      // adminEmail is the user's login email
+      const userEmail = adminEmail || email;
+      const recoveryEmailToUse = recoveryEmail || email;
+      
+      if (!userEmail) {
+        return res.status(400).json({ error: "Email required" });
       }
 
       // Verify document first
       if (documentNumber) {
-        const isValid = await storage.verifyAdminDocument(adminEmail, documentNumber);
+        const isValid = await storage.verifyAdminDocument(userEmail, documentNumber);
         if (!isValid) {
           return res.status(400).json({ error: "Invalid email or document number" });
         }
       }
 
-      // Verify recovery email matches registered recovery email
-      const isValidRecoveryEmail = await storage.verifyRecoveryEmail(adminEmail, email);
-      if (!isValidRecoveryEmail) {
-        return res.status(400).json({ error: "Email de recuperación no coincide" });
+      // Verify recovery email matches registered recovery email (if provided)
+      if (recoveryEmail || adminEmail) {
+        const isValidRecoveryEmail = await storage.verifyRecoveryEmail(userEmail, recoveryEmailToUse);
+        if (!isValidRecoveryEmail) {
+          return res.status(400).json({ error: "Email de recuperación no coincide" });
+        }
       }
 
-      const admin = await storage.getAdminByEmail(adminEmail);
+      const admin = await storage.getAdminByEmail(userEmail);
         
       if (!admin) {
         return res.json({ message: "If email exists, code will be sent" });
       }
 
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code, undefined, email);
+      await storage.createResetToken(admin.id, code, undefined, recoveryEmailToUse);
 
       const isDev = process.env.NODE_ENV === "development";
 
@@ -523,6 +530,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Code sent to email" });
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Failed to request password reset" });
+    }
+  });
+
+  // Verify email exists in system
+  app.post("/api/password-reset/verify-email-exists", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email required" });
+      }
+
+      const admin = await storage.getAdminByEmail(email);
+      if (!admin) {
+        return res.status(400).json({ error: "Email not found" });
+      }
+
+      res.json({ message: "Email verified" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to verify email" });
     }
   });
 

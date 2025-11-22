@@ -26,16 +26,17 @@ export default function ForgotPassword() {
 
     try {
       // Just verify email exists in system
-      const res = await fetch("/api/password-reset/request-email", {
+      const res = await fetch("/api/password-reset/verify-email-exists", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
       if (!res.ok) {
+        const error = await res.json();
         toast({
           title: "Error",
-          description: "Email no encontrado",
+          description: error.error || "Email no encontrado",
           variant: "destructive",
         });
         setIsLoading(false);
