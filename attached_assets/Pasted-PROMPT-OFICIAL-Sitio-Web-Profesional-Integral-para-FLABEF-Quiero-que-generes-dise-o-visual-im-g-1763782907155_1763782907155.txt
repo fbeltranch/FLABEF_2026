@@ -1,0 +1,240 @@
+PROMPT OFICIAL: Sitio Web Profesional Integral para "FLABEF"
+
+Quiero que generes diseño visual, imágenes, estructura, estilo, identidad gráfica y material destacable para un sitio web altamente profesional, moderno, elegante y confiable de la marca FLABEF.
+FLABEF es un negocio multidisciplinario con tres grandes divisiones en una sola web:
+
+1️⃣ SECCIÓN PRINCIPAL – E-COMMERCE DE TECNOLOGÍA (FLABEF TECH STORE)
+
+Generar imágenes y maquetación para un e-commerce especializado que vende:
+
+Laptops de todas las gamas
+
+PCs armadas
+
+Componentes OPA
+
+Periféricos gamer
+
+Monitores
+
+Audífonos y headsets
+
+Teclados mecánicos
+
+Smartphones
+
+Accesorios electrónicos
+
+Gadgets modernos
+
+Estilo Visual Deseado
+
+Minimalista, moderno y elegante.
+
+Tonos: azul eléctrico, negro, gris metálico.
+
+Fondos con luz suave holográfica o futurista.
+
+Estética similar a Apple + Razer + Amazon Tech.
+
+Productos con iluminación profesional tipo catálogo.
+
+Imágenes a Generar
+
+Portada hero para ecommerce tecnológico (muy profesional).
+
+Catálogo de productos (laptops, PCs, periféricos, etc.) con fondo neutro premium.
+
+Sección “Ofertas del Día”.
+
+Banners promocionales con frases como:
+
+“Tecnología que impulsa tu productividad.”
+
+“Eleva tu setup al siguiente nivel.”
+
+“Equipos con garantía y asesoría profesional.”
+
+Funcionalidad destacable
+
+Botón “Consultar por WhatsApp” siempre visible.
+
+Diseño que transmita confianza y soporte humano.
+
+2️⃣ SECCIÓN DE SOPORTE TÉCNICO – FLABEF IT SERVICES
+
+Generar todo el diseño para una sección profesional de servicios IT, donde se ofrece:
+
+Servicios
+
+Soporte técnico presencial y remoto
+
+Armado y optimización de PC
+
+Mantenimiento de hardware
+
+Reparación de laptops y PC
+
+Instalación de Windows, drivers y software
+
+Soporte para empresas
+
+Venta e instalación de monitores
+
+Validación y análisis de datos (SQL)
+
+Diagnóstico técnico express
+
+Estilo visual
+
+Profesional, confiable, corporativo
+
+Tonos: azul oscuro, gris plata, blanco
+
+Imágenes limpias de técnicos trabajando
+
+Iconografía moderna (estilo Microsoft 365 / Azure)
+
+Imágenes a generar
+
+Técnico instalando hardware
+
+Escritorios IT minimalistas
+
+Servidores, cables ordenados y gabinetes limpios
+
+Personas recibiendo soporte
+
+PC armadas con estética profesional
+
+IMPORTANTE
+
+Toda la sección debe tener botones o banners que digan:
+
+“Contáctanos por WhatsApp – Atención inmediata”
+Número: 925330577
+
+3️⃣ SECCIÓN DE COMIDAS – FLABEF FOOD SERVICE
+
+Generar imágenes y diseño elegante para una mini sección gastronómica donde se ofrece:
+
+Contenido
+
+Platos caseros peruanos
+
+Desayunos
+
+Almuerzos compactos
+
+Snack y bebidas
+
+Estilo Visual
+
+Fotografías en alta calidad estilo catálogo
+
+Fondos cálidos y agradables
+
+Presentación limpia tipo carta de restaurante
+
+Enfoque en comida fresca, casera y hecha con cariño
+
+Imágenes a generar
+
+Platos típicos como: arroz con pollo, lomo saltado, pollo a la plancha, estofado
+
+Bebidas frías
+
+Presentaciones bonitas en platos blancos o madera
+
+Llamado a la acción
+
+“Haz tu pedido por WhatsApp – Cocina casera al instante”
+Número: 925330577
+
+4️⃣ IDENTIDAD GENERAL QUE DEBE TENER TODA LA WEB
+Estilo Global
+
+Diseño armonioso, profesional y moderno
+
+Interfaz limpia
+
+Tipografía elegante: similar a Poppins o Inter
+
+Secciones bien diferenciadas
+
+Transiciones suaves y experiencias fluidas
+
+Objetivo
+
+Crear un sitio web:
+
+✔ atractivo
+✔ confiable
+✔ profesional
+✔ fácil de navegar
+✔ con imágenes coherentes entre sí
+✔ ideal para un negocio multifuncional
+✔ con foco en contacto vía WhatsApp
+
+5️⃣ ELEMENTOS EXTRA A GENERAR
+Iconos personalizados para cada categoría
+
+Tecnologías
+
+Soporte técnico
+
+Comida
+
+Contacto
+
+WhatsApp
+
+Imágenes para banners
+
+“Flabef Tech Store – Innovación al alcance”
+
+“Soporte Técnico Profesional 24/7”
+
+“Sabor Casero para tu Día”
+
+Material para secciones internas
+
+Fondos abstractos
+
+Texturas ligeras
+
+Mockups de productos
+
+Tarjetas visuales para servicios
+
+6️⃣ TONO Y MENSAJE DEL NEGOCIO
+
+FLABEF debe verse como:
+
+Un negocio confiable
+
+Con varios servicios, pero cada uno bien presentado
+
+Profesional y transparente
+
+Respetado en tecnología y soporte
+
+Cercano a los clientes mediante WhatsApp
+
+Innovador en su presentación visual
+
+Capaz de competir con páginas modernas
+
+7️⃣ ENTREGA ESPERADA DEL MODELO DE IA
+
+El modelo debe entregar:
+
+Imágenes coherentes para las tres secciones
+
+Todos los banners pedidos
+
+Estilo uniforme en colores y estética
+
+Diseño ordenado listo para tu web actual (Bootstrap)
+
+Material de alta calidad listo para subir a tu Netlify
