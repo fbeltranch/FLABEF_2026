@@ -419,9 +419,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Request password reset via SMS (Opción 3)
   app.post("/api/password-reset/request-sms", async (req, res) => {
     try {
-      const { email, phone } = req.body;
+      const { email, phone, documentNumber } = req.body;
       if (!email || !phone) {
         return res.status(400).json({ error: "Email and phone required" });
+      }
+
+      // Verify document first
+      if (documentNumber) {
+        const isValid = await storage.verifyAdminDocument(email, documentNumber);
+        if (!isValid) {
+          return res.status(400).json({ error: "Invalid email or document number" });
+        }
       }
 
       const admin = await storage.getAdminByEmail(email);
@@ -432,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Generate 6-digit code
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code, phone);
+      await storage.createResetToken(admin.id, code, phone, email);
 
       const isDev = process.env.NODE_ENV === "development";
       let smsSent = false;
@@ -473,9 +481,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Request password reset via email (Alternative)
   app.post("/api/password-reset/request-email", async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email, documentNumber } = req.body;
       if (!email) {
         return res.status(400).json({ error: "Email required" });
+      }
+
+      // Verify document first
+      if (documentNumber) {
+        const isValid = await storage.verifyAdminDocument(email, documentNumber);
+        if (!isValid) {
+          return res.status(400).json({ error: "Invalid email or document number" });
+        }
       }
 
       const admin = await storage.getAdminByEmail(email);
@@ -484,7 +500,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const code = Math.random().toString().slice(2, 8).padStart(6, "0");
-      await storage.createResetToken(admin.id, code);
+      await storage.createResetToken(admin.id, code, undefined, email);
 
       const isDev = process.env.NODE_ENV === "development";
 
@@ -499,6 +515,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Code sent to email" });
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Failed to request password reset" });
+    }
+  });
+
+  // Verify document for password reset
+  app.post("/api/password-reset/verify-document", async (req, res) => {
+    try {
+      const { email, documentNumber } = req.body;
+      if (!email || !documentNumber) {
+        return res.status(400).json({ error: "Email and document number required" });
+      }
+
+      const isValid = await storage.verifyAdminDocument(email, documentNumber);
+      if (!isValid) {
+        return res.status(400).json({ message: "Invalid email or document number" });
+      }
+
+      res.json({ message: "Document verified" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to verify document" });
     }
   });
 

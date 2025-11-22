@@ -186,6 +186,8 @@ export const adminUsers = pgTable("admin_users", {
   password: text("password").notNull(), // Hashed
   role: text("role").notNull().default("viewer"), // "super_admin", "editor", "viewer"
   fullName: varchar("full_name"),
+  documentType: varchar("document_type").notNull(), // "DNI", "Pasaporte", "Carnet de Extranjería", "Otro"
+  documentNumber: varchar("document_number").notNull(), // DNI=8 chars, others=more
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: varchar("created_by"), // ID of admin who created this user
@@ -197,7 +199,20 @@ export const insertAdminUserSchema = z.object({
   password: z.string().min(6),
   role: z.enum(["super_admin", "editor", "viewer"]),
   fullName: z.string().optional(),
-});
+  documentType: z.enum(["DNI", "Pasaporte", "Carnet de Extranjería", "Otro"]),
+  documentNumber: z.string(),
+}).refine(
+  (data) => {
+    if (data.documentType === "DNI") {
+      return data.documentNumber.length === 8;
+    }
+    return data.documentNumber.length > 0;
+  },
+  {
+    message: "DNI debe tener exactamente 8 caracteres",
+    path: ["documentNumber"],
+  }
+);
 
 export const updateAdminUserSchema = z.object({
   role: z.enum(["super_admin", "editor", "viewer"]).optional(),
@@ -216,6 +231,8 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   adminId: varchar("admin_id").notNull(),
   code: varchar("code").notNull().unique(), // 6-digit code
   phone: varchar("phone"), // Phone number if reset via SMS
+  email: varchar("email"), // Email for reset via email
+  documentVerified: boolean("document_verified").notNull().default(false), // Document verified before sending code
   expiresAt: timestamp("expires_at").notNull(),
   isUsed: boolean("is_used").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -225,6 +242,8 @@ export const insertPasswordResetSchema = z.object({
   adminId: z.string(),
   code: z.string(),
   phone: z.string().optional(),
+  email: z.string().optional(),
+  documentVerified: z.boolean().default(false),
   expiresAt: z.date(),
 });
 

@@ -13,7 +13,10 @@ import ITServices from "@/pages/ITServices";
 import FoodService from "@/pages/FoodService";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminRegister from "@/pages/AdminRegister";
 import ForgotPassword from "@/pages/ForgotPassword";
+import ForgotPasswordVerifyDocument from "@/pages/ForgotPasswordVerifyDocument";
+import ForgotPasswordSelectMethod from "@/pages/ForgotPasswordSelectMethod";
 import ForgotPasswordMethod from "@/pages/ForgotPasswordMethod";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/not-found";
@@ -82,7 +85,10 @@ function Router() {
           ) : (
             <Route path="/admin-secret-2024" component={AdminLogin} />
           )}
+          <Route path="/admin-secret-2024/register" component={AdminRegister} />
           <Route path="/admin-secret-2024/forgot-password" component={ForgotPassword} />
+          <Route path="/admin-secret-2024/forgot-password/verify-document" component={ForgotPasswordVerifyDocument} />
+          <Route path="/admin-secret-2024/forgot-password/select-method" component={ForgotPasswordSelectMethod} />
           <Route path="/admin-secret-2024/forgot-password/:method" component={ForgotPasswordMethod} />
           <Route path="/admin-secret-2024/reset-password" component={ResetPassword} />
           <Route component={NotFound} />

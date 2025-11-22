@@ -17,6 +17,8 @@ export async function initializeAdmins() {
       password: "admin123", // In production, use hashed passwords!
       role: "super_admin",
       fullName: "Super Admin",
+      documentType: "DNI",
+      documentNumber: "12345678",
     });
 
     console.log("[init] Super admin created: admin@flabef.com / admin123");

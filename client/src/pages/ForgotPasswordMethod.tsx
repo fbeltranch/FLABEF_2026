@@ -13,6 +13,7 @@ export default function ForgotPasswordMethod() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [recoveryCode, setRecoveryCode] = useState("");
+  const [documentNumber, setDocumentNumber] = useState("");
   const { toast } = useToast();
 
   const isSms = location.includes("/sms");
@@ -20,6 +21,7 @@ export default function ForgotPasswordMethod() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setEmail(params.get("email") || "");
+    setDocumentNumber(params.get("documentNumber") || "");
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +51,9 @@ export default function ForgotPasswordMethod() {
       const endpoint = isSms
         ? "/api/password-reset/request-sms"
         : "/api/password-reset/request-email";
-      const payload = isSms ? { email, phone } : { email };
+      const payload = isSms 
+        ? { email, phone, documentNumber } 
+        : { email, documentNumber };
 
       const res = await fetch(endpoint, {
         method: "POST",

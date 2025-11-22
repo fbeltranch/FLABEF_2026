@@ -35,7 +35,7 @@ export default function ForgotPassword() {
       if (!res.ok) {
         toast({
           title: "Error",
-          description: "Error al procesar la solicitud",
+          description: "Email no encontrado",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -44,10 +44,13 @@ export default function ForgotPassword() {
 
       toast({
         title: "Éxito",
-        description: "Email verificado",
+        description: "Email encontrado",
       });
 
-      setSubmitted(true);
+      // Redirect to document verification
+      setTimeout(() => {
+        window.location.href = `/admin-secret-2024/forgot-password/verify-document?email=${encodeURIComponent(email)}`;
+      }, 500);
     } catch (error) {
       toast({
         title: "Error",
@@ -59,39 +62,7 @@ export default function ForgotPassword() {
   };
 
   if (submitted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Elige método de recuperación</CardTitle>
-            <CardDescription>Selecciona cómo quieres recibir el código</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <a href={`/admin-secret-2024/forgot-password/sms?email=${encodeURIComponent(email)}`}>
-              <Button className="w-full" data-testid="button-recovery-sms">
-                Recibir por SMS
-              </Button>
-            </a>
-            <a href={`/admin-secret-2024/forgot-password/email?email=${encodeURIComponent(email)}`}>
-              <Button variant="outline" className="w-full" data-testid="button-recovery-email">
-                Recibir por Email
-              </Button>
-            </a>
-            <Button
-              variant="ghost"
-              className="w-full"
-              onClick={() => {
-                setSubmitted(false);
-                setEmail("");
-              }}
-              data-testid="button-back"
-            >
-              Atrás
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return null;
   }
 
   return (

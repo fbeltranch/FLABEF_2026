@@ -92,10 +92,13 @@ export interface IStorage {
   getAllAdmins(): Promise<AdminUser[]>;
 
   // Password Reset Tokens
-  createResetToken(adminId: string, code: string, phone?: string): Promise<PasswordResetToken>;
+  createResetToken(adminId: string, code: string, phone?: string, email?: string): Promise<PasswordResetToken>;
   getResetToken(code: string): Promise<PasswordResetToken | undefined>;
   markTokenAsUsed(code: string): Promise<void>;
   cleanExpiredTokens(): Promise<void>;
+  
+  // Document Verification
+  verifyAdminDocument(email: string, documentNumber: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -319,6 +322,8 @@ export class DatabaseStorage implements IStorage {
         password: adminData.password, // In production, hash this!
         role: adminData.role,
         fullName: adminData.fullName,
+        documentType: adminData.documentType,
+        documentNumber: adminData.documentNumber,
         createdBy: adminData.createdBy,
       })
       .returning();
@@ -343,7 +348,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // ===== Password Reset Tokens =====
-  async createResetToken(adminId: string, code: string, phone?: string): Promise<PasswordResetToken> {
+  async createResetToken(adminId: string, code: string, phone?: string, email?: string): Promise<PasswordResetToken> {
     // Expire in 15 minutes
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
     const result = await db
@@ -352,6 +357,7 @@ export class DatabaseStorage implements IStorage {
         adminId,
         code,
         phone,
+        email,
         expiresAt,
       })
       .returning();
@@ -379,6 +385,17 @@ export class DatabaseStorage implements IStorage {
       .where(and(
         eq(passwordResetTokens.isUsed, false),
       ));
+  }
+
+  // ===== Document Verification =====
+  async verifyAdminDocument(email: string, documentNumber: string): Promise<boolean> {
+    const admin = await db.select()
+      .from(adminUsers)
+      .where(and(
+        eq(adminUsers.email, email),
+        eq(adminUsers.documentNumber, documentNumber),
+      ));
+    return admin.length > 0;
   }
 }
 
