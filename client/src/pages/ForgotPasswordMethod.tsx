@@ -1,0 +1,164 @@
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+
+export default function ForgotPasswordMethod() {
+  const [location] = useLocation();
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { toast } = useToast();
+
+  const isSms = location.includes("/sms");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setEmail(params.get("email") || "");
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Email no encontrado",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isSms && !phone) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa tu teléfono",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const endpoint = isSms
+        ? "/api/password-reset/request-sms"
+        : "/api/password-reset/request-email";
+      const payload = isSms ? { email, phone } : { email };
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        toast({
+          title: "Error",
+          description: "No se pudo enviar el código",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      toast({
+        title: "Éxito",
+        description: isSms ? "Código enviado por SMS" : "Código enviado por email",
+      });
+
+      setSubmitted(true);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error al procesar la solicitud",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Código Enviado</CardTitle>
+            <CardDescription>
+              {isSms ? `Verifica tu teléfono ${phone}` : `Verifica tu email ${email}`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Hemos enviado un código de 6 dígitos. Será válido por 15 minutos.
+            </p>
+            <a href={`/admin-secret-2024/reset-password?email=${encodeURIComponent(email)}`}>
+              <Button className="w-full" data-testid="button-go-to-reset">
+                Ingresar Código
+              </Button>
+            </a>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setSubmitted(false)}
+              data-testid="button-back"
+            >
+              Atrás
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Recuperar Contraseña</CardTitle>
+          <CardDescription>
+            {isSms ? "Ingresa tu número de teléfono" : "Un código será enviado a tu email"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isSms && (
+              <div>
+                <Label htmlFor="phone">Teléfono</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+51 999 888 777"
+                  disabled={isLoading}
+                  data-testid="input-phone"
+                  required
+                />
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+              data-testid="button-send-code"
+            >
+              {isLoading ? "Enviando..." : "Enviar Código"}
+            </Button>
+
+            <a href="/admin-secret-2024/forgot-password">
+              <Button variant="outline" className="w-full" data-testid="button-back">
+                Atrás
+              </Button>
+            </a>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

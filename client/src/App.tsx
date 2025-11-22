@@ -14,6 +14,7 @@ import FoodService from "@/pages/FoodService";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLogin from "@/pages/AdminLogin";
 import ForgotPassword from "@/pages/ForgotPassword";
+import ForgotPasswordMethod from "@/pages/ForgotPasswordMethod";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/not-found";
 import { useAuth } from "@/hooks/useAuth";
@@ -82,6 +83,7 @@ function Router() {
             <Route path="/admin-secret-2024" component={AdminLogin} />
           )}
           <Route path="/admin-secret-2024/forgot-password" component={ForgotPassword} />
+          <Route path="/admin-secret-2024/forgot-password/:method" component={ForgotPasswordMethod} />
           <Route path="/admin-secret-2024/reset-password" component={ResetPassword} />
           <Route component={NotFound} />
         </Switch>

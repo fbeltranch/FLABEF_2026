@@ -3,35 +3,39 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ForgotPassword() {
-  const [method, setMethod] = useState<"email" | "sms">("sms");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
-  const handleRequestReset = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa tu email",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const endpoint = method === "sms" ? "/api/password-reset/request-sms" : "/api/password-reset/request-email";
-      const payload = method === "sms" ? { email, phone } : { email };
-
-      const res = await fetch(endpoint, {
+      // Just verify email exists in system
+      const res = await fetch("/api/password-reset/request-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ email }),
       });
 
       if (!res.ok) {
         toast({
           title: "Error",
-          description: "No se pudo procesar la solicitud",
+          description: "Error al procesar la solicitud",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -40,7 +44,7 @@ export default function ForgotPassword() {
 
       toast({
         title: "Éxito",
-        description: method === "sms" ? "Código enviado por SMS" : "Código enviado por email",
+        description: "Email verificado",
       });
 
       setSubmitted(true);
@@ -59,29 +63,26 @@ export default function ForgotPassword() {
       <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Código Enviado</CardTitle>
-            <CardDescription>
-              {method === "sms"
-                ? `Verifica tu teléfono ${phone}`
-                : `Verifica tu email ${email}`}
-            </CardDescription>
+            <CardTitle>Elige método de recuperación</CardTitle>
+            <CardDescription>Selecciona cómo quieres recibir el código</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Hemos enviado un código de 6 dígitos. Será válido por 15 minutos.
-            </p>
-            <a href="/admin-secret-2024/reset-password">
-              <Button className="w-full" data-testid="button-go-to-reset">
-                Ingresar Código
+          <CardContent className="space-y-3">
+            <a href={`/admin-secret-2024/forgot-password/sms?email=${encodeURIComponent(email)}`}>
+              <Button className="w-full" data-testid="button-recovery-sms">
+                Recibir por SMS
+              </Button>
+            </a>
+            <a href={`/admin-secret-2024/forgot-password/email?email=${encodeURIComponent(email)}`}>
+              <Button variant="outline" className="w-full" data-testid="button-recovery-email">
+                Recibir por Email
               </Button>
             </a>
             <Button
-              variant="outline"
+              variant="ghost"
               className="w-full"
               onClick={() => {
                 setSubmitted(false);
                 setEmail("");
-                setPhone("");
               }}
               data-testid="button-back"
             >
@@ -98,61 +99,39 @@ export default function ForgotPassword() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>¿Olvidaste tu Contraseña?</CardTitle>
-          <CardDescription>Elige cómo deseas recibir el código de reseteo</CardDescription>
+          <CardDescription>Ingresa tu email para recuperar tu cuenta</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={method} onValueChange={(v) => setMethod(v as "email" | "sms")}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="sms">SMS</TabsTrigger>
-              <TabsTrigger value="email">Email</TabsTrigger>
-            </TabsList>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@flabef.com"
+                disabled={isLoading}
+                required
+                data-testid="input-email"
+              />
+            </div>
 
-            <form onSubmit={handleRequestReset} className="space-y-4 mt-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@flabef.com"
-                  disabled={isLoading}
-                  required
-                  data-testid="input-email"
-                />
-              </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+              data-testid="button-continue"
+            >
+              {isLoading ? "Verificando..." : "Continuar"}
+            </Button>
 
-              <TabsContent value="sms" className="space-y-4 mt-0">
-                <div>
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+51 999 888 777"
-                    disabled={isLoading}
-                    data-testid="input-phone"
-                  />
-                </div>
-              </TabsContent>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading || !email}
-                data-testid="button-request-reset"
-              >
-                {isLoading ? "Enviando..." : "Enviar Código"}
-              </Button>
-            </form>
-
-            <a href="/admin-secret-2024" className="block mt-4">
+            <a href="/admin-secret-2024">
               <Button variant="outline" className="w-full" data-testid="button-back-to-login">
                 Volver al Login
               </Button>
             </a>
-          </Tabs>
+          </form>
         </CardContent>
       </Card>
     </div>
