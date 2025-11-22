@@ -978,13 +978,24 @@ function AdminsTab() {
   });
 
   const handleSubmit = () => {
-    if (!formData.email || !formData.password) {
-      toast({ title: "Completa email y contraseña", variant: "destructive" });
+    if (!formData.email) {
+      toast({ title: "El email es requerido", variant: "destructive" });
+      return;
+    }
+
+    // For creating new admin, password is required
+    if (!editingAdmin && !formData.password) {
+      toast({ title: "La contraseña es requerida para nuevo admin", variant: "destructive" });
       return;
     }
 
     if (editingAdmin) {
-      updateMutation.mutate({ role: formData.role, fullName: formData.fullName || undefined });
+      // When editing, password is optional (can be empty string to skip changing it)
+      updateMutation.mutate({ 
+        role: formData.role, 
+        fullName: formData.fullName || undefined,
+        password: formData.password || undefined // Pass undefined if empty to skip password change
+      });
     } else {
       createMutation.mutate(formData);
     }
@@ -1009,10 +1020,15 @@ function AdminsTab() {
               <Label>Email</Label>
               <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} disabled={!!editingAdmin} />
             </div>
-            {!editingAdmin && (
+            {!editingAdmin ? (
               <div>
                 <Label>Contraseña</Label>
-                <Input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                <Input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Min 6 caracteres" />
+              </div>
+            ) : (
+              <div>
+                <Label>Nueva Contraseña (dejar vacío para no cambiar)</Label>
+                <Input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Dejar vacío para mantener actual" />
               </div>
             )}
             <div>

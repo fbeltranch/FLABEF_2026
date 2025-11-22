@@ -210,6 +210,26 @@ export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type UpdateAdminUser = z.infer<typeof updateAdminUserSchema>;
 
+// ============= PASSWORD RESET TOKENS =============
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adminId: varchar("admin_id").notNull(),
+  code: varchar("code").notNull().unique(), // 6-digit code
+  phone: varchar("phone"), // Phone number if reset via SMS
+  expiresAt: timestamp("expires_at").notNull(),
+  isUsed: boolean("is_used").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPasswordResetSchema = z.object({
+  adminId: z.string(),
+  code: z.string(),
+  phone: z.string().optional(),
+  expiresAt: z.date(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
 // ============= PRODUCT_OWNER (Optional - for future owner tracking) =============
 // This tracks which admin user created or owns a product
 export const productOwners = pgTable("product_owners", {

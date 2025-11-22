@@ -390,6 +390,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admins/:id", isSuperAdmin, async (req, res) => {
     try {
       const validated = updateAdminUserSchema.parse(req.body);
+      
+      // Opción 1: Super admin puede cambiar contraseña de otros admins
+      // Si password está vacío, no cambiar contraseña
+      if (validated.password === "" || !validated.password) {
+        const { password, ...dataWithoutPassword } = validated;
+        const admin = await storage.updateAdmin(req.params.id, dataWithoutPassword);
+        return res.json(admin);
+      }
+      
       const admin = await storage.updateAdmin(req.params.id, validated);
       res.json(admin);
     } catch (error: any) {
@@ -403,6 +412,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Admin deleted" });
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Failed to delete admin" });
+    }
+  });
+
+  // ============= PASSWORD RESET =============
+  // Request password reset via SMS (Opción 3)
+  app.post("/api/password-reset/request-sms", async (req, res) => {
+    try {
+      const { email, phone } = req.body;
+      if (!email || !phone) {
+        return res.status(400).json({ error: "Email and phone required" });
+      }
+
+      const admin = await storage.getAdminByEmail(email);
+      if (!admin) {
+        // Don't reveal if user exists
+        return res.json({ message: "If email exists, code will be sent" });
+      }
+
+      // Generate 6-digit code
+      const code = Math.random().toString().slice(2, 8).padStart(6, "0");
+      await storage.createResetToken(admin.id, code, phone);
+
+      // Try to send SMS via Twilio if configured
+      try {
+        const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
+        const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+        const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+        if (twilioAccountSid && twilioAuthToken && twilioPhoneNumber) {
+          const twilio = require("twilio");
+          const client = twilio(twilioAccountSid, twilioAuthToken);
+          await client.messages.create({
+            body: `Tu código de reseteo de contraseña es: ${code}. Válido por 15 minutos.`,
+            from: twilioPhoneNumber,
+            to: phone,
+          });
+        } else {
+          console.log(`[PASSWORD RESET] Code for ${email}: ${code} (Twilio not configured)`);
+        }
+      } catch (smsError) {
+        console.error("Failed to send SMS:", smsError);
+      }
+
+      res.json({ message: "Code sent to phone" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to request password reset" });
+    }
+  });
+
+  // Request password reset via email (Alternative)
+  app.post("/api/password-reset/request-email", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email required" });
+      }
+
+      const admin = await storage.getAdminByEmail(email);
+      if (!admin) {
+        return res.json({ message: "If email exists, code will be sent" });
+      }
+
+      const code = Math.random().toString().slice(2, 8).padStart(6, "0");
+      await storage.createResetToken(admin.id, code);
+
+      // Log code (in production, send via email service)
+      console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
+
+      res.json({ message: "Code sent to email" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to request password reset" });
+    }
+  });
+
+  // Verify code and reset password
+  app.post("/api/password-reset/verify", async (req, res) => {
+    try {
+      const { code, newPassword } = req.body;
+      if (!code || !newPassword) {
+        return res.status(400).json({ error: "Code and new password required" });
+      }
+
+      const token = await storage.getResetToken(code);
+      if (!token) {
+        return res.status(400).json({ error: "Invalid or expired code" });
+      }
+
+      // Check if token expired
+      if (new Date() > token.expiresAt) {
+        return res.status(400).json({ error: "Code has expired" });
+      }
+
+      // Update password
+      await storage.updateAdmin(token.adminId, { password: newPassword });
+      await storage.markTokenAsUsed(code);
+
+      res.json({ message: "Password reset successfully" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to reset password" });
     }
   });
 

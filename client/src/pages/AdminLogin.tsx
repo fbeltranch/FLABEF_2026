@@ -91,6 +91,12 @@ export default function AdminLogin() {
             >
               {isLoading ? "Iniciando..." : "Iniciar Sesión"}
             </Button>
+
+            <a href="/admin-secret-2024/forgot-password">
+              <Button variant="outline" className="w-full" data-testid="button-forgot-password">
+                ¿Olvidaste tu Contraseña?
+              </Button>
+            </a>
           </form>
         </CardContent>
       </Card>
