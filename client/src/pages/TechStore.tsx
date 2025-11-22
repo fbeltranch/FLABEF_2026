@@ -9,6 +9,7 @@ import { ShoppingCart, Search, Filter, Star, Check, Package, Facebook, Instagram
 import { SiTiktok } from "react-icons/si";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import type { Product, CartItem } from "@shared/schema";
 import heroImage from "@assets/generated_images/tech_store_hero_background.png";
 
@@ -118,14 +119,11 @@ export default function TechStore() {
             >
               {techHero.cta1Text || "Ver Catálogo"}
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-lg px-8 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
-              data-testid="button-hero-whatsapp"
-            >
-              {techHero.cta2Text || "Consultar por WhatsApp"}
-            </Button>
+            <WhatsAppButton 
+              variant="inline"
+              text={techHero.cta2Text || "Consultar por WhatsApp"}
+              message="Hola! Me gustaría obtener más información sobre los productos"
+            />
           </div>
         </div>
       </section>
