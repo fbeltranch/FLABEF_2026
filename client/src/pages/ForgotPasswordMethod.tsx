@@ -131,7 +131,7 @@ export default function ForgotPasswordMethod() {
             {isSms ? "Ingresa tu número de teléfono" : "Un código será enviado a tu email"}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSms && (
               <div>
@@ -157,13 +157,13 @@ export default function ForgotPasswordMethod() {
             >
               {isLoading ? "Enviando..." : "Enviar Código"}
             </Button>
-
-            <a href="/admin-secret-2024/forgot-password">
-              <Button variant="outline" className="w-full" data-testid="button-back">
-                Atrás
-              </Button>
-            </a>
           </form>
+
+          <a href="/admin-secret-2024/forgot-password" className="block">
+            <Button variant="outline" className="w-full" type="button" data-testid="button-back">
+              Atrás
+            </Button>
+          </a>
         </CardContent>
       </Card>
     </div>

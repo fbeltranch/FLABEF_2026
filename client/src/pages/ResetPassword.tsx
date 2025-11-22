@@ -103,7 +103,7 @@ export default function ResetPassword() {
           <CardTitle>Resetear Contraseña</CardTitle>
           <CardDescription>Ingresa el código y tu nueva contraseña</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <form onSubmit={handleReset} className="space-y-4">
             <div>
               <Label htmlFor="code">Código de 6 dígitos</Label>
@@ -156,13 +156,13 @@ export default function ResetPassword() {
             >
               {isLoading ? "Actualizando..." : "Actualizar Contraseña"}
             </Button>
-
-            <a href="/admin-secret-2024">
-              <Button variant="outline" className="w-full" data-testid="button-back-to-login">
-                Volver al Login
-              </Button>
-            </a>
           </form>
+
+          <a href="/admin-secret-2024" className="block">
+            <Button variant="outline" className="w-full" type="button" data-testid="button-back-to-login">
+              Volver al Login
+            </Button>
+          </a>
         </CardContent>
       </Card>
     </div>
