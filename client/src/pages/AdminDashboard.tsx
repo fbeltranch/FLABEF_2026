@@ -70,6 +70,7 @@ export default function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       resetForm();
       setEditingProduct(null);
+      setIsAddOpen(false);
       toast({ title: "Producto actualizado exitosamente" });
     },
   });
@@ -105,6 +106,7 @@ export default function AdminDashboard() {
       image: product.image,
       inStock: product.inStock,
     });
+    setIsAddOpen(true);
   };
 
   const handleSubmit = () => {
