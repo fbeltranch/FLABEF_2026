@@ -456,7 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Failed to send SMS:", smsError);
       }
 
-      console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
+      console.log(`[PASSWORD RESET] SMS Code for ${admin.email}: ${code}`);
 
       // In development, return code for testing
       if (isDev) {
