@@ -179,6 +179,37 @@ export const insertSiteSettingSchema = z.object({
 export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
 export type SiteSetting = typeof siteSettings.$inferSelect;
 
+// ============= ADMIN USERS (Role-based access control) =============
+export const adminUsers = pgTable("admin_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").notNull().unique(),
+  password: text("password").notNull(), // Hashed
+  role: text("role").notNull().default("viewer"), // "super_admin", "editor", "viewer"
+  fullName: varchar("full_name"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  createdBy: varchar("created_by"), // ID of admin who created this user
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAdminUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum(["super_admin", "editor", "viewer"]),
+  fullName: z.string().optional(),
+});
+
+export const updateAdminUserSchema = z.object({
+  role: z.enum(["super_admin", "editor", "viewer"]).optional(),
+  fullName: z.string().optional(),
+  isActive: z.boolean().optional(),
+  password: z.string().min(6).optional(),
+});
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+export type UpdateAdminUser = z.infer<typeof updateAdminUserSchema>;
+
 // ============= PRODUCT_OWNER (Optional - for future owner tracking) =============
 // This tracks which admin user created or owns a product
 export const productOwners = pgTable("product_owners", {

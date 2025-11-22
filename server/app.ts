@@ -12,6 +12,7 @@ import { initializeProducts } from "./initializeProducts";
 import { initializeITServices, initializeFoodItems } from "./initializeSampleData";
 import { initializeFooters } from "./initializeFooters";
 import { initializeSettings } from "./initializeSettings";
+import { initializeAdmins } from "./initializeAdmins";
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -41,6 +42,7 @@ export default async function runApp(
   await initializeFoodItems();
   await initializeFooters();
   await initializeSettings();
+  await initializeAdmins();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

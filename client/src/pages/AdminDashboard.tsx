@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Edit2, Trash2, X, Facebook, Instagram, MessageCircle, MapPin, Phone, Mail } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Product, ITService, FoodItem, Footer } from "@shared/schema";
+import type { Product, ITService, FoodItem, Footer, AdminUser } from "@shared/schema";
 
 const productCategories = [
   "camisetas", "pantalones", "mochilas", "zapatos", "vestidos", "accesorios",
@@ -928,6 +928,157 @@ function FootersTab() {
   );
 }
 
+// ===== ADMIN MANAGEMENT =====
+function AdminsTab() {
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState<AdminUser | null>(null);
+  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", role: "editor" });
+  const { toast } = useToast();
+
+  const { data: admins = [], isLoading } = useQuery({
+    queryKey: ["/api/admins"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: { email: string; password: string; fullName?: string; role: string }) => {
+      return apiRequest("POST", "/api/admins", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admins"] });
+      setFormData({ email: "", password: "", fullName: "", role: "editor" });
+      setIsAddOpen(false);
+      toast({ title: "Admin creado exitosamente" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "No se pudo crear el admin", variant: "destructive" });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: { role: string; fullName?: string }) => {
+      if (!editingAdmin) throw new Error("No admin selected");
+      return apiRequest("PUT", `/api/admins/${editingAdmin.id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admins"] });
+      setFormData({ email: "", password: "", fullName: "", role: "editor" });
+      setEditingAdmin(null);
+      toast({ title: "Admin actualizado exitosamente" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("DELETE", `/api/admins/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admins"] });
+      toast({ title: "Admin eliminado" });
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!formData.email || !formData.password) {
+      toast({ title: "Completa email y contraseña", variant: "destructive" });
+      return;
+    }
+
+    if (editingAdmin) {
+      updateMutation.mutate({ role: formData.role, fullName: formData.fullName || undefined });
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <Button onClick={() => { setIsAddOpen(true); setEditingAdmin(null); setFormData({ email: "", password: "", fullName: "", role: "editor" }); }}>
+          <Plus className="w-4 h-4 mr-2" />
+          Nuevo Admin
+        </Button>
+      </div>
+
+      {isAddOpen && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{editingAdmin ? "Editar Admin" : "Crear Nuevo Admin"}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Email</Label>
+              <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} disabled={!!editingAdmin} />
+            </div>
+            {!editingAdmin && (
+              <div>
+                <Label>Contraseña</Label>
+                <Input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+              </div>
+            )}
+            <div>
+              <Label>Nombre Completo</Label>
+              <Input value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} />
+            </div>
+            <div>
+              <Label>Rol</Label>
+              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                  <SelectItem value="editor">Editor (puede editar)</SelectItem>
+                  <SelectItem value="viewer">Viewer (solo lectura)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+          <CardFooter className="gap-2">
+            <Button className="flex-1" onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>
+              {editingAdmin ? "Actualizar" : "Crear"}
+            </Button>
+            <Button variant="outline" className="flex-1" onClick={() => { setIsAddOpen(false); setEditingAdmin(null); }}>
+              Cancelar
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      <div className="space-y-2">
+        {isLoading ? (
+          <div>Cargando...</div>
+        ) : (
+          admins.map((admin) => (
+            <Card key={admin.id}>
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold">{admin.fullName || admin.email}</p>
+                    <p className="text-sm text-gray-500">{admin.email}</p>
+                    <Badge className="mt-2">{admin.role}</Badge>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => {
+                      setEditingAdmin(admin);
+                      setFormData({ email: admin.email, password: "", fullName: admin.fullName || "", role: admin.role });
+                      setIsAddOpen(true);
+                    }}>
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => deleteMutation.mutate(admin.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ===== BRANDING & SETTINGS =====
 function BrandingTab() {
   const [branding, setBranding] = useState({ siteName: "", logo: "", description: "" });
@@ -1252,12 +1403,13 @@ export default function AdminDashboard() {
       <h1 className="text-4xl font-bold mb-8">Panel de Administración FLABEF</h1>
       
       <Tabs defaultValue="products" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="products">Productos Tech</TabsTrigger>
           <TabsTrigger value="it-services">Servicios IT</TabsTrigger>
           <TabsTrigger value="food">Comidas</TabsTrigger>
           <TabsTrigger value="footers">Footers</TabsTrigger>
           <TabsTrigger value="branding">Branding</TabsTrigger>
+          <TabsTrigger value="admins">Admins</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="mt-8">
@@ -1278,6 +1430,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="branding" className="mt-8">
           <BrandingTab />
+        </TabsContent>
+
+        <TabsContent value="admins" className="mt-8">
+          <AdminsTab />
         </TabsContent>
       </Tabs>
     </div>

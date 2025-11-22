@@ -13,11 +13,14 @@ import {
   insertContactRequestSchema,
   insertFooterSchema,
   insertSiteSettingSchema,
+  insertAdminUserSchema,
+  updateAdminUserSchema,
 } from "@shared/schema";
+import { isSuperAdmin, isEditor } from "./simpleAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
-  setupAuth(app);
+  setupAuth(app, storage);
 
   // ============= AUTH ROUTES =============
   app.get('/api/auth/user', (req: any, res) => {
@@ -358,6 +361,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(setting);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Invalid settings data" });
+    }
+  });
+
+  // ============= ADMIN USERS MANAGEMENT =============
+  app.get("/api/admins", isSuperAdmin, async (_req, res) => {
+    try {
+      const admins = await storage.getAllAdmins();
+      res.json(admins);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch admins" });
+    }
+  });
+
+  app.post("/api/admins", isSuperAdmin, async (req, res) => {
+    try {
+      const validated = insertAdminUserSchema.parse(req.body);
+      const admin = await storage.createAdmin({
+        ...validated,
+        createdBy: (req.session as any).user?.id,
+      });
+      res.json(admin);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid admin data" });
+    }
+  });
+
+  app.put("/api/admins/:id", isSuperAdmin, async (req, res) => {
+    try {
+      const validated = updateAdminUserSchema.parse(req.body);
+      const admin = await storage.updateAdmin(req.params.id, validated);
+      res.json(admin);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid admin data" });
+    }
+  });
+
+  app.delete("/api/admins/:id", isSuperAdmin, async (req, res) => {
+    try {
+      await storage.deleteAdmin(req.params.id);
+      res.json({ message: "Admin deleted" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to delete admin" });
     }
   });
 

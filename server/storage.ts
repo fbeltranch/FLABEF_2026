@@ -16,6 +16,9 @@ import {
   type UpdateFooter,
   type SiteSetting,
   type InsertSiteSetting,
+  type AdminUser,
+  type InsertAdminUser,
+  type UpdateAdminUser,
   products,
   itServices,
   foodItems,
@@ -24,6 +27,7 @@ import {
   users,
   footers,
   siteSettings,
+  adminUsers,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -75,6 +79,14 @@ export interface IStorage {
   getSiteSetting(key: string): Promise<SiteSetting | undefined>;
   updateSiteSetting(key: string, value: Record<string, any>): Promise<SiteSetting>;
   getAllSiteSettings(): Promise<SiteSetting[]>;
+
+  // Admin Users
+  getAdminByEmail(email: string): Promise<AdminUser | undefined>;
+  getAdminById(id: string): Promise<AdminUser | undefined>;
+  createAdmin(admin: InsertAdminUser & { createdBy?: string }): Promise<AdminUser>;
+  updateAdmin(id: string, admin: UpdateAdminUser): Promise<AdminUser>;
+  deleteAdmin(id: string): Promise<void>;
+  getAllAdmins(): Promise<AdminUser[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -277,6 +289,48 @@ export class DatabaseStorage implements IStorage {
 
   async getAllSiteSettings(): Promise<SiteSetting[]> {
     return db.select().from(siteSettings);
+  }
+
+  // ===== Admin Users =====
+  async getAdminByEmail(email: string): Promise<AdminUser | undefined> {
+    const result = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
+    return result[0];
+  }
+
+  async getAdminById(id: string): Promise<AdminUser | undefined> {
+    const result = await db.select().from(adminUsers).where(eq(adminUsers.id, id));
+    return result[0];
+  }
+
+  async createAdmin(adminData: InsertAdminUser & { createdBy?: string }): Promise<AdminUser> {
+    const result = await db
+      .insert(adminUsers)
+      .values({
+        email: adminData.email,
+        password: adminData.password, // In production, hash this!
+        role: adminData.role,
+        fullName: adminData.fullName,
+        createdBy: adminData.createdBy,
+      })
+      .returning();
+    return result[0];
+  }
+
+  async updateAdmin(id: string, adminData: UpdateAdminUser): Promise<AdminUser> {
+    const result = await db
+      .update(adminUsers)
+      .set({ ...adminData, updatedAt: new Date() })
+      .where(eq(adminUsers.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteAdmin(id: string): Promise<void> {
+    await db.delete(adminUsers).where(eq(adminUsers.id, id));
+  }
+
+  async getAllAdmins(): Promise<AdminUser[]> {
+    return db.select().from(adminUsers);
   }
 }
 

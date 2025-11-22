@@ -73,7 +73,7 @@ function Router() {
           <Route path="/" component={TechStore} />
           <Route path="/it-services" component={ITServices} />
           <Route path="/food" component={FoodService} />
-          {isAuthenticated && <Route path="/admin" component={AdminDashboard} />}
+          {isAuthenticated && <Route path="/admin-secret-2024" component={AdminDashboard} />}
           <Route component={NotFound} />
         </Switch>
       </main>
