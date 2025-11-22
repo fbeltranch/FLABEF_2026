@@ -1,19 +1,24 @@
-import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function ForgotPasswordSelectMethod() {
-  const [location] = useLocation();
-  
-  const searchParams = new URLSearchParams(location.split("?")[1]);
-  const documentNumber = searchParams.get("documentNumber") || "";
+  const fullUrl = window.location.href;
+  const url = new URL(fullUrl);
+  const documentNumber = url.searchParams.get("documentNumber") || "";
+
+  console.log("[DEBUG] SelectMethod - Full URL:", fullUrl);
+  console.log("[DEBUG] SelectMethod - documentNumber:", documentNumber);
 
   const handleSmsClick = () => {
-    window.location.href = `/admin-secret-2024/forgot-password/sms?documentNumber=${encodeURIComponent(documentNumber)}`;
+    const newUrl = `/admin-secret-2024/forgot-password/sms?documentNumber=${encodeURIComponent(documentNumber)}`;
+    console.log("[DEBUG] Navigating to SMS:", newUrl);
+    window.location.href = newUrl;
   };
 
   const handleEmailClick = () => {
-    window.location.href = `/admin-secret-2024/forgot-password/email?documentNumber=${encodeURIComponent(documentNumber)}`;
+    const newUrl = `/admin-secret-2024/forgot-password/email?documentNumber=${encodeURIComponent(documentNumber)}`;
+    console.log("[DEBUG] Navigating to Email:", newUrl);
+    window.location.href = newUrl;
   };
 
   const handleBack = () => {
