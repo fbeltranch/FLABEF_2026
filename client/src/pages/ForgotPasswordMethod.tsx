@@ -89,7 +89,6 @@ export default function ForgotPasswordMethod() {
         description: isSms ? "Código enviado por SMS" : "Código enviado por email",
       });
 
-      // Store code if returned (development mode)
       if (data.code) {
         setRecoveryCode(data.code);
       }
